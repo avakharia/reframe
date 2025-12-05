@@ -1,15 +1,23 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { WisdomNugget } from "../types";
 
-// Helper to get the AI client instance
-// We initialize this lazily to ensure environment variables are ready and to prevent top-level failures
+// Helper to get the AI client instance safely
 const getAiClient = () => {
-  return new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    console.warn("API_KEY is not set in process.env");
+    return null;
+  }
+  return new GoogleGenAI({ apiKey });
 };
 
 export const generateWisdom = async (situation: string): Promise<WisdomNugget> => {
   try {
     const ai = getAiClient();
+    
+    // Fallback if AI client cannot be initialized (e.g. missing key)
+    if (!ai) throw new Error("AI Client not initialized");
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: `The user is facing this situation: "${situation}". 
@@ -50,7 +58,7 @@ export const generateWisdom = async (situation: string): Promise<WisdomNugget> =
       id: Date.now().toString(),
       quote: "The only way out is through.",
       author: "Robert Frost",
-      context: "When facing difficulties, avoidance only prolongs the struggle.",
+      context: "When facing difficulties, avoidance only prolongs the struggle. (Fallback: AI unavailable)",
       tags: ["Resilience", "Courage"],
       actionableStep: "Write down the one thing you are avoiding and do it for just 5 minutes."
     };
@@ -60,6 +68,8 @@ export const generateWisdom = async (situation: string): Promise<WisdomNugget> =
 export const suggestProjectTasks = async (projectTitle: string, description: string): Promise<string[]> => {
   try {
     const ai = getAiClient();
+    if (!ai) throw new Error("AI Client not initialized");
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: `Create a list of 5 actionable, small steps (tasks) for a project titled "${projectTitle}" with description: "${description}". return only strings.`,

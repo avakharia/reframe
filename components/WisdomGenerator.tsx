@@ -51,27 +51,27 @@ export const WisdomGenerator: React.FC = () => {
       </div>
 
       {wisdom && (
-        <div className="animate-fade-in-up bg-white rounded-2xl p-8 shadow-xl border border-slate-100">
+        <div className="animate-fade-in-up bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-xl border border-slate-100 dark:border-slate-700 transition-colors">
           <div className="mb-6 text-center">
             <Quote className="h-8 w-8 text-brand-500 mx-auto mb-4 opacity-50" />
-            <p className="text-xl md:text-2xl font-serif text-slate-800 italic leading-relaxed">
+            <p className="text-xl md:text-2xl font-serif text-slate-800 dark:text-slate-100 italic leading-relaxed">
               "{wisdom.quote}"
             </p>
-            <p className="mt-4 text-sm font-bold text-slate-500 uppercase tracking-wide">
+            <p className="mt-4 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
               — {wisdom.author}
             </p>
           </div>
 
-          <div className="bg-slate-50 rounded-xl p-5 mb-6">
-            <h4 className="font-semibold text-slate-700 mb-2">The Perspective</h4>
-            <p className="text-slate-600 leading-relaxed text-sm">
+          <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-5 mb-6">
+            <h4 className="font-semibold text-slate-700 dark:text-slate-200 mb-2">The Perspective</h4>
+            <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm">
               {wisdom.context}
             </p>
           </div>
 
-          <div className="border-l-4 border-green-500 bg-green-50 rounded-r-xl p-5">
-            <h4 className="font-bold text-green-800 mb-1 text-sm uppercase">Actionable Step</h4>
-            <p className="text-green-900 font-medium">
+          <div className="border-l-4 border-green-500 bg-green-50 dark:bg-green-900/20 rounded-r-xl p-5">
+            <h4 className="font-bold text-green-800 dark:text-green-400 mb-1 text-sm uppercase">Actionable Step</h4>
+            <p className="text-green-900 dark:text-green-200 font-medium">
               {wisdom.actionableStep}
             </p>
           </div>
@@ -79,12 +79,12 @@ export const WisdomGenerator: React.FC = () => {
           <div className="mt-6 flex justify-between items-center">
             <div className="flex gap-2">
               {wisdom.tags.map(tag => (
-                <span key={tag} className="px-2 py-1 bg-slate-100 text-slate-500 text-xs rounded-full">
+                <span key={tag} className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 text-xs rounded-full">
                   #{tag}
                 </span>
               ))}
             </div>
-            <button className="text-slate-400 hover:text-brand-500 transition-colors">
+            <button className="text-slate-400 hover:text-brand-500 dark:hover:text-brand-400 transition-colors">
               <Share2 size={20} />
             </button>
           </div>
