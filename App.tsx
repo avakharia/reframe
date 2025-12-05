@@ -115,7 +115,14 @@ const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClose, onAd
             disabled={loading}
             className="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-lg mt-4 flex justify-center items-center gap-2 transition-colors"
           >
-            {loading ? <Loader2 className="animate-spin" /> : <><Plus size={20} /> Create Project</>}
+            {loading ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <>
+                <Plus size={20} />
+                Create Project
+              </>
+            )}
           </button>
           {loading && <p className="text-center text-xs text-slate-500 mt-2">AI is generating a starting plan...</p>}
         </form>

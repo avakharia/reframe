@@ -4,7 +4,7 @@
 
 ## Tech Stack
 
-- **Frontend**: React 19 (TypeScript), Tailwind CSS
+- **Frontend**: React 18.3.1 (TypeScript), Tailwind CSS
 - **AI**: Google Gemini API (@google/genai)
 - **Icons**: Lucide React
 - **Architecture**: Single Page Application (SPA)
