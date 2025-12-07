@@ -6,7 +6,7 @@
 
 - **Frontend**: React 18.3.1 (TypeScript), Tailwind CSS
 - **AI**: Google Gemini API (@google/genai)
-- **Authentication**: Firebase Auth (Google, Facebook, X)
+- **Authentication**: Firebase Auth (Google)
 - **Icons**: Lucide React
 - **Architecture**: Single Page Application (SPA)
 
@@ -29,8 +29,6 @@ To enable social logins, you must create a Firebase project:
 6.  **Enable Auth Providers**:
     *   Go to **Build** -> **Authentication** -> **Sign-in method**.
     *   Enable **Google** (no extra setup needed usually).
-    *   Enable **Facebook** (requires App ID/Secret from [Meta for Developers](https://developers.facebook.com/)).
-    *   Enable **Twitter / X** (requires API Key/Secret from [X Developer Portal](https://developer.x.com/)).
 
 ### 3. Running Locally
 
