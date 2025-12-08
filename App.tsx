@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Project, Task, SearchResult, ReframeVariation, ReframeType, FollowUpResult, Priority, TaskNote, WisdomNugget } from './types';
+import { View, Project, Task, SearchResult, ReframeVariation, ReframeType, FollowUpResult, Priority, TaskNote, WisdomNugget, Mood, ProjectNote } from './types';
 import { WisdomGenerator } from './components/WisdomGenerator';
 import { ProjectCard } from './components/ProjectCard';
-import { suggestProjectTasks, analyzeSituation, getFollowUpAdvice, getProjectCoaching } from './services/geminiService';
+import { suggestProjectTasks, analyzeSituation, getFollowUpAdvice, getProjectCoaching, generateProjectQuestions, refineProjectPlan } from './services/geminiService';
 import { signInWithSocial, signUpWithEmail, loginWithEmail, logout, subscribeToAuth, User } from './services/firebase';
 import { 
   LayoutDashboard, 
@@ -48,7 +48,18 @@ import {
   Edit3,
   Sparkles,
   PieChart,
-  Target
+  Target,
+  Smile,
+  Frown,
+  Meh,
+  CloudRain,
+  Anchor,
+  Trophy,
+  Book,
+  PenTool,
+  ChevronUp,
+  SlidersHorizontal,
+  ArrowUpDown
 } from 'lucide-react';
 
 // --- Translations ---
@@ -377,7 +388,6 @@ interface ProjectDetailPageProps {
   project: Project;
   projects: Project[]; // All projects for switching
   onSelectProject: (id: string) => void;
-  onBack: () => void;
   onToggleTask: (pid: string, tid: string) => void;
   onUpdatePriority: (pid: string, tid: string, priority: Priority) => void;
   onEditTask: (pid: string, task: Task) => void;
@@ -388,18 +398,36 @@ interface ProjectDetailPageProps {
 }
 
 const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ 
-  project, projects, onSelectProject, onBack, onToggleTask, onUpdatePriority, onEditTask, onAddTask, onUpdateProject, onNavigateToToolbox, lang 
+  project, projects, onSelectProject, onToggleTask, onUpdatePriority, onEditTask, onAddTask, onUpdateProject, onNavigateToToolbox, lang 
 }) => {
-  const [activeTab, setActiveTab] = useState<'Action' | 'Coach'>('Action');
+  const [activeTab, setActiveTab] = useState<'Action' | 'Coach' | 'Journal'>('Action');
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [descInput, setDescInput] = useState(project.description);
   const [coachWisdom, setCoachWisdom] = useState<WisdomNugget | null>(null);
   const [loadingWisdom, setLoadingWisdom] = useState(false);
 
+  // Journal State
+  const [noteInput, setNoteInput] = useState('');
+  const [selectedMood, setSelectedMood] = useState<Mood>('Confident');
+
+  // Intake / Discovery Mode State
+  const [showIntake, setShowIntake] = useState(false);
+  const [intakeQuestions, setIntakeQuestions] = useState<string[]>([]);
+  const [intakeAnswers, setIntakeAnswers] = useState<string[]>(['', '', '']);
+  const [loadingIntake, setLoadingIntake] = useState(false);
+  const [processingRefinement, setProcessingRefinement] = useState(false);
+
   // Update descInput when project changes (via switcher)
   useEffect(() => {
     setDescInput(project.description);
   }, [project.id, project.description]);
+
+  // Check if intake is needed
+  useEffect(() => {
+    if (!project.hasCompletedIntake && !showIntake) {
+       // We can prompt user to start discovery
+    }
+  }, [project]);
 
   // Re-calculate stats
   const totalTasks = project.tasks.length;
@@ -423,6 +451,72 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
     }
   };
 
+  const startDiscovery = async () => {
+      setLoadingIntake(true);
+      setShowIntake(true);
+      try {
+          const qs = await generateProjectQuestions(project.title, project.description);
+          setIntakeQuestions(qs);
+      } catch (e) {
+          console.error(e);
+          setIntakeQuestions([
+              "What is your biggest blocker right now?",
+              "Why is this important to you?",
+              "What does success look like in 30 days?"
+          ]);
+      } finally {
+          setLoadingIntake(false);
+      }
+  };
+
+  const submitDiscovery = async () => {
+      setProcessingRefinement(true);
+      try {
+          // Combine Q&A
+          const context = intakeQuestions.map((q, i) => `Q: ${q}\nA: ${intakeAnswers[i]}`).join('\n\n');
+          const refined = await refineProjectPlan(project.title, project.description, context);
+          
+          const newTasks = refined.suggestedTasks.map((t, i) => ({
+             id: `refined-${Date.now()}-${i}`,
+             title: t,
+             isCompleted: false,
+             priority: 'Medium' as Priority
+          }));
+
+          onUpdateProject({
+              ...project,
+              description: refined.newDescription, // AI might improve the description
+              tasks: [...project.tasks, ...newTasks],
+              hasCompletedIntake: true,
+              userContext: context
+          });
+          setShowIntake(false);
+          setActiveTab('Action');
+      } catch (e) {
+          console.error(e);
+      } finally {
+          setProcessingRefinement(false);
+      }
+  };
+
+  const handleAddProjectNote = () => {
+      if(!noteInput.trim()) return;
+
+      const newNote: ProjectNote = {
+          id: Date.now().toString(),
+          content: noteInput,
+          mood: selectedMood,
+          createdAt: Date.now()
+      };
+
+      onUpdateProject({
+          ...project,
+          notes: [newNote, ...(project.notes || [])] // Prepend
+      });
+      setNoteInput('');
+      setSelectedMood('Confident');
+  };
+
   const getPriorityColor = (p?: Priority) => {
     switch (p) {
       case 'High': return 'bg-red-500';
@@ -432,29 +526,93 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
     }
   };
 
+  const moods: { type: Mood; icon: React.ReactNode; label: string, color: string }[] = [
+    { type: 'Excited', icon: <Zap size={18} />, label: 'Excited', color: 'text-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' },
+    { type: 'Confident', icon: <Trophy size={18} />, label: 'Confident', color: 'text-green-500 bg-green-50 dark:bg-green-900/20' },
+    { type: 'Proud', icon: <StarIcon />, label: 'Proud', color: 'text-purple-500 bg-purple-50 dark:bg-purple-900/20' },
+    { type: 'Neutral', icon: <Meh size={18} />, label: 'Neutral', color: 'text-slate-500 bg-slate-50 dark:bg-slate-700' },
+    { type: 'Anxious', icon: <CloudRain size={18} />, label: 'Anxious', color: 'text-blue-500 bg-blue-50 dark:bg-blue-900/20' },
+    { type: 'Stuck', icon: <Anchor size={18} />, label: 'Stuck', color: 'text-red-500 bg-red-50 dark:bg-red-900/20' },
+    { type: 'Overwhelmed', icon: <Frown size={18} />, label: 'Overwhelmed', color: 'text-orange-500 bg-orange-50 dark:bg-orange-900/20' },
+  ];
+
+  if (showIntake) {
+      return (
+          <div className="max-w-2xl mx-auto py-12 animate-fade-in px-4">
+              <button onClick={() => setShowIntake(false)} className="text-slate-400 hover:text-slate-600 mb-6 flex items-center gap-2">
+                  <ArrowLeft size={18} /> Back to Project
+              </button>
+              
+              <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-xl border border-slate-100 dark:border-slate-700">
+                  <div className="flex items-center gap-4 mb-6">
+                      <div className="w-12 h-12 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center text-brand-600 dark:text-brand-400">
+                          <Sparkles size={24} />
+                      </div>
+                      <div>
+                          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Discovery Mode</h2>
+                          <p className="text-slate-500 dark:text-slate-400 text-sm">Let's clarify your vision to build the perfect plan.</p>
+                      </div>
+                  </div>
+
+                  {loadingIntake ? (
+                      <div className="py-12 text-center">
+                          <Loader2 className="w-10 h-10 text-brand-500 animate-spin mx-auto mb-4" />
+                          <p className="text-slate-500">Generating questions...</p>
+                      </div>
+                  ) : (
+                      <div className="space-y-6">
+                          {intakeQuestions.map((q, i) => (
+                              <div key={i} className="animate-fade-in-up" style={{ animationDelay: `${i * 100}ms` }}>
+                                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                      {i + 1}. {q}
+                                  </label>
+                                  <textarea 
+                                      value={intakeAnswers[i]}
+                                      onChange={(e) => {
+                                          const newAnswers = [...intakeAnswers];
+                                          newAnswers[i] = e.target.value;
+                                          setIntakeAnswers(newAnswers);
+                                      }}
+                                      className="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 rounded-xl p-3 focus:ring-2 focus:ring-brand-500 outline-none text-slate-900 dark:text-white"
+                                      rows={2}
+                                      placeholder="Type your answer..."
+                                  />
+                              </div>
+                          ))}
+
+                          <button 
+                              onClick={submitDiscovery}
+                              disabled={processingRefinement}
+                              className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-brand-500/20 transition-all mt-4 flex items-center justify-center gap-2"
+                          >
+                              {processingRefinement ? <Loader2 className="animate-spin" /> : <Sparkles size={18} />}
+                              Generate My Plan
+                          </button>
+                      </div>
+                  )}
+              </div>
+          </div>
+      )
+  }
+
   return (
     <div className="max-w-6xl mx-auto pb-20 animate-fade-in">
-       <div className="flex justify-between items-center mb-6">
-         {/* Project Switcher Dropdown */}
-         <div className="relative group">
-           <div className="flex items-center gap-2 text-slate-500 mb-1 text-xs font-medium uppercase tracking-wider">
-             Switch Project
+       <div className="flex justify-end items-center mb-6">
+         {/* Project Switcher Dropdown - Right Aligned */}
+         <div className="relative group min-w-[250px]">
+           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+             <ChevronDown className="text-slate-400" size={16} />
            </div>
            <select 
              value={project.id}
              onChange={(e) => onSelectProject(e.target.value)}
-             className="appearance-none bg-white dark:bg-slate-800 border-none text-xl md:text-2xl font-bold text-slate-900 dark:text-white pr-8 py-1 focus:ring-0 cursor-pointer hover:text-brand-600 transition-colors w-full max-w-md truncate"
+             className="appearance-none w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 pl-4 pr-10 py-2 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none cursor-pointer shadow-sm hover:border-brand-300 dark:hover:border-slate-600 transition-colors"
            >
              {projects.map(p => (
                <option key={p.id} value={p.id}>{p.title}</option>
              ))}
            </select>
-           <ChevronDown className="absolute right-0 bottom-2 text-slate-400 pointer-events-none" size={20} />
          </div>
-         
-         <button onClick={onBack} className="text-sm font-medium text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 transition-colors">
-           Back to Overview
-         </button>
        </div>
 
        {/* Header Section */}
@@ -471,6 +629,11 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
                    <span className="text-slate-400 dark:text-slate-500 text-sm flex items-center gap-1">
                      <Calendar size={14} /> Created {new Date(project.createdAt).toLocaleDateString()}
                    </span>
+                   {!project.hasCompletedIntake && (
+                       <button onClick={startDiscovery} className="text-xs bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 hover:bg-brand-200 transition-colors animate-pulse">
+                           <Sparkles size={12} /> Start Discovery Mode
+                       </button>
+                   )}
                 </div>
                 
                 <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-6 leading-tight">{project.title}</h1>
@@ -533,17 +696,24 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
        </div>
 
        {/* Tabs */}
-       <div className="flex gap-8 border-b border-slate-200 dark:border-slate-800 mb-8 px-2">
+       <div className="flex gap-8 border-b border-slate-200 dark:border-slate-800 mb-8 px-2 overflow-x-auto">
          <button 
            onClick={() => setActiveTab('Action')}
-           className={`pb-4 px-2 text-sm font-bold flex items-center gap-2 transition-all relative ${activeTab === 'Action' ? 'text-brand-600 dark:text-brand-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
+           className={`pb-4 px-2 text-sm font-bold flex items-center gap-2 transition-all relative whitespace-nowrap ${activeTab === 'Action' ? 'text-brand-600 dark:text-brand-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
          >
            <ListTodo size={18} /> Action Plan
            {activeTab === 'Action' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-brand-500 rounded-t-full"></div>}
          </button>
          <button 
+           onClick={() => setActiveTab('Journal')}
+           className={`pb-4 px-2 text-sm font-bold flex items-center gap-2 transition-all relative whitespace-nowrap ${activeTab === 'Journal' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
+         >
+           <Book size={18} /> Journal
+           {activeTab === 'Journal' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 rounded-t-full"></div>}
+         </button>
+         <button 
            onClick={() => setActiveTab('Coach')}
-           className={`pb-4 px-2 text-sm font-bold flex items-center gap-2 transition-all relative ${activeTab === 'Coach' ? 'text-purple-600 dark:text-purple-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
+           className={`pb-4 px-2 text-sm font-bold flex items-center gap-2 transition-all relative whitespace-nowrap ${activeTab === 'Coach' ? 'text-purple-600 dark:text-purple-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
          >
            <Sparkles size={18} /> AI Coach & Wisdom
            {activeTab === 'Coach' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-500 rounded-t-full"></div>}
@@ -626,6 +796,78 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
               </div>
             )}
 
+            {activeTab === 'Journal' && (
+                <div className="animate-fade-in space-y-6">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+                        <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                            <PenTool size={18} className="text-blue-500" /> New Entry
+                        </h3>
+                        <div className="mb-4">
+                            <textarea 
+                                value={noteInput}
+                                onChange={(e) => setNoteInput(e.target.value)}
+                                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:ring-2 focus:ring-brand-500 outline-none text-sm min-h-[100px]"
+                                placeholder="Capture your thoughts, progress, or feelings about this project..."
+                            />
+                        </div>
+                        
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div className="flex flex-wrap gap-2">
+                                {moods.map(m => (
+                                    <button
+                                        key={m.type}
+                                        onClick={() => setSelectedMood(m.type)}
+                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                                            selectedMood === m.type 
+                                            ? `${m.color} ring-2 ring-offset-1 ring-offset-white dark:ring-offset-slate-800 ring-current` 
+                                            : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600'
+                                        }`}
+                                    >
+                                        {m.icon} {m.label}
+                                    </button>
+                                ))}
+                            </div>
+                            <button 
+                                onClick={handleAddProjectNote}
+                                disabled={!noteInput.trim()}
+                                className="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2 rounded-xl font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Add Note
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <h3 className="font-bold text-slate-800 dark:text-white text-sm uppercase tracking-wide pl-2">History</h3>
+                        {!project.notes || project.notes.length === 0 ? (
+                            <div className="text-center py-10 text-slate-400 italic bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+                                No notes yet. Start journaling your journey!
+                            </div>
+                        ) : (
+                            project.notes.map(note => {
+                                const moodObj = moods.find(m => m.type === note.mood) || moods[3]; // Default neutral
+                                return (
+                                    <div key={note.id} className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${moodObj.color}`}>
+                                                {moodObj.icon} {note.mood}
+                                            </div>
+                                            <span className="text-xs text-slate-400 flex items-center gap-1">
+                                                <Clock size={12} />
+                                                {new Date(note.createdAt).toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
+                                            {note.content}
+                                        </p>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+                </div>
+            )}
+
             {activeTab === 'Coach' && (
               <div className="animate-fade-in space-y-6">
                  <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
@@ -688,6 +930,11 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
                    <span className="text-slate-500">Remaining</span>
                    <span className="font-bold text-slate-800 dark:text-white">{totalTasks - completedTasks}</span>
                  </div>
+                 {/* Journal Stats */}
+                  <div className="flex justify-between items-center text-sm border-t border-slate-100 dark:border-slate-700 pt-3">
+                   <span className="text-slate-500">Journal Entries</span>
+                   <span className="font-bold text-blue-600">{project.notes ? project.notes.length : 0}</span>
+                 </div>
                </div>
              </div>
 
@@ -718,115 +965,271 @@ interface AllTasksViewProps {
   lang: Language;
 }
 
+type GroupByOption = 'Project' | 'Date' | 'Priority' | 'None';
+type SortByOption = 'DueDate' | 'Priority' | 'Title';
+
 const AllTasksView: React.FC<AllTasksViewProps> = ({ projects, onToggleTask, onEditTask, lang }) => {
   const [filter, setFilter] = useState<'All' | 'Active' | 'Completed'>('All');
+  const [groupBy, setGroupBy] = useState<GroupByOption>('Project');
+  const [sortBy, setSortBy] = useState<SortByOption>('DueDate');
+  const [projectFilter, setProjectFilter] = useState<string>('All');
+  
   const t = translations[lang];
 
-  const allTasks = projects.flatMap(p => p.tasks.map(t => ({ ...t, projectId: p.id, projectTitle: p.title })));
+  // Flatten tasks with project metadata
+  const allTasks = projects.flatMap(p => p.tasks.map(t => ({ 
+    ...t, 
+    projectId: p.id, 
+    projectTitle: p.title,
+    projectCategory: p.category
+  })));
   
-  const filteredTasks = allTasks.filter(task => {
-    if (filter === 'Active') return !task.isCompleted;
-    if (filter === 'Completed') return task.isCompleted;
+  // 1. Filter
+  let filteredTasks = allTasks.filter(task => {
+    // Status Filter
+    if (filter === 'Active' && task.isCompleted) return false;
+    if (filter === 'Completed' && !task.isCompleted) return false;
+    // Project Filter
+    if (projectFilter !== 'All' && task.projectId !== projectFilter) return false;
     return true;
   });
 
-  // Sort by due date (if any) then priority
+  // 2. Sort
   filteredTasks.sort((a, b) => {
-    // High priority first
-    const pWeight = { 'High': 3, 'Medium': 2, 'Low': 1 };
-    const wa = pWeight[a.priority || 'Medium'];
-    const wb = pWeight[b.priority || 'Medium'];
-    return wb - wa;
+    if (sortBy === 'DueDate') {
+      // Tasks with due dates come first, sorted ascending
+      if (a.dueDate && b.dueDate) return a.dueDate - b.dueDate;
+      if (a.dueDate) return -1;
+      if (b.dueDate) return 1;
+      return 0;
+    } else if (sortBy === 'Priority') {
+       const pWeight = { 'High': 3, 'Medium': 2, 'Low': 1 };
+       const wa = pWeight[a.priority || 'Medium'];
+       const wb = pWeight[b.priority || 'Medium'];
+       return wb - wa;
+    } else {
+       return a.title.localeCompare(b.title);
+    }
   });
+
+  // 3. Group
+  const groupedTasks: { [key: string]: typeof filteredTasks } = {};
+  
+  if (groupBy === 'Project') {
+    filteredTasks.forEach(task => {
+      const key = task.projectTitle;
+      if (!groupedTasks[key]) groupedTasks[key] = [];
+      groupedTasks[key].push(task);
+    });
+  } else if (groupBy === 'Priority') {
+     filteredTasks.forEach(task => {
+      const key = task.priority || 'Medium';
+      if (!groupedTasks[key]) groupedTasks[key] = [];
+      groupedTasks[key].push(task);
+    });
+  } else if (groupBy === 'Date') {
+    filteredTasks.forEach(task => {
+      let key = 'No Due Date';
+      if (task.dueDate) {
+        const date = new Date(task.dueDate);
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        
+        const diffTime = date.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+        
+        if (diffDays < 0) key = 'Overdue';
+        else if (diffDays === 0) key = 'Today';
+        else if (diffDays === 1) key = 'Tomorrow';
+        else if (diffDays <= 7) key = 'This Week';
+        else key = 'Later';
+      }
+      if (!groupedTasks[key]) groupedTasks[key] = [];
+      groupedTasks[key].push(task);
+    });
+  } else {
+    groupedTasks['All Tasks'] = filteredTasks;
+  }
+
+  // Helper for priority color
+  const getPriorityColor = (p?: Priority) => {
+    switch (p) {
+      case 'High': return 'bg-red-500';
+      case 'Medium': return 'bg-yellow-500';
+      case 'Low': return 'bg-blue-400';
+      default: return 'bg-slate-300';
+    }
+  };
 
   return (
     <div className="animate-fade-in space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t.tasks}</h2>
-        <div className="flex bg-white dark:bg-slate-800 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
-           {['All', 'Active', 'Completed'].map(f => (
-             <button
-               key={f}
-               onClick={() => setFilter(f as any)}
-               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                 filter === f 
-                 ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300' 
-                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-               }`}
-             >
-               {f}
-             </button>
-           ))}
+        
+        {/* Filters Bar */}
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+           {/* Status Toggle */}
+           <div className="flex bg-white dark:bg-slate-800 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
+             {['All', 'Active', 'Completed'].map(f => (
+               <button
+                 key={f}
+                 onClick={() => setFilter(f as any)}
+                 className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                   filter === f 
+                   ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300' 
+                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                 }`}
+               >
+                 {f}
+               </button>
+             ))}
+           </div>
+           
+           {/* Controls Group */}
+           <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+               {/* Group By */}
+               <div className="relative group">
+                 <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                   <SlidersHorizontal size={14} className="text-slate-400" />
+                 </div>
+                 <select 
+                   value={groupBy} 
+                   onChange={(e) => setGroupBy(e.target.value as GroupByOption)}
+                   className="pl-8 pr-8 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-brand-500 appearance-none cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                 >
+                   <option value="Project">Group: Project</option>
+                   <option value="Date">Group: Date</option>
+                   <option value="Priority">Group: Priority</option>
+                   <option value="None">Group: None</option>
+                 </select>
+               </div>
+
+               {/* Sort By */}
+               <div className="relative group">
+                 <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                   <ArrowUpDown size={14} className="text-slate-400" />
+                 </div>
+                 <select 
+                   value={sortBy} 
+                   onChange={(e) => setSortBy(e.target.value as SortByOption)}
+                   className="pl-8 pr-8 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-brand-500 appearance-none cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                 >
+                   <option value="DueDate">Sort: Due Date</option>
+                   <option value="Priority">Sort: Priority</option>
+                   <option value="Title">Sort: Title</option>
+                 </select>
+               </div>
+
+                {/* Filter Project */}
+               <div className="relative group">
+                 <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                   <Filter size={14} className="text-slate-400" />
+                 </div>
+                 <select 
+                   value={projectFilter} 
+                   onChange={(e) => setProjectFilter(e.target.value)}
+                   className="pl-8 pr-8 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-brand-500 appearance-none cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 max-w-[150px] truncate"
+                 >
+                   <option value="All">Filter: All Projects</option>
+                   {projects.map(p => (
+                     <option key={p.id} value={p.id}>{p.title}</option>
+                   ))}
+                 </select>
+               </div>
+           </div>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-700 overflow-hidden">
-        {filteredTasks.length === 0 ? (
-          <div className="p-8 text-center text-slate-500 dark:text-slate-400 italic">
-            No tasks found.
+      <div className="space-y-6">
+        {Object.keys(groupedTasks).length === 0 ? (
+          <div className="p-12 text-center bg-white dark:bg-slate-800 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+            <p className="text-slate-500 dark:text-slate-400 italic">No tasks found matching filters.</p>
           </div>
         ) : (
-          filteredTasks.map(task => (
-            <div 
-              key={`${task.projectId}-${task.id}`} 
-              className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group flex items-start gap-4"
-            >
-               {/* Radio Button Area - Toggle */}
-               <div 
-                 className="pt-1 cursor-pointer"
-                 onClick={(e) => { e.stopPropagation(); onToggleTask(task.projectId, task.id); }}
-               >
-                 {task.isCompleted ? (
-                   <CheckCircle className="text-green-500" size={20} />
-                 ) : (
-                   <div className={`w-5 h-5 rounded-full border-2 ${
-                     task.priority === 'High' ? 'border-red-400' : 
-                     task.priority === 'Low' ? 'border-blue-300' : 'border-slate-300 dark:border-slate-500'
-                   } hover:border-brand-500 transition-colors`}></div>
-                 )}
-               </div>
-               
-               <div className="flex-1 min-w-0">
-                 <div className="flex justify-between items-start">
-                    {/* Title Area - Edit */}
-                    <p 
-                      className={`font-medium truncate cursor-pointer hover:text-brand-600 dark:hover:text-brand-400 transition-colors ${task.isCompleted ? 'text-slate-400 line-through' : 'text-slate-800 dark:text-slate-200'}`}
-                      onClick={(e) => { e.stopPropagation(); onEditTask(task.projectId, task); }}
-                    >
-                      {task.title}
-                    </p>
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); onEditTask(task.projectId, task); }}
-                      className="text-slate-300 hover:text-brand-600 dark:text-slate-600 dark:hover:text-brand-400 opacity-0 group-hover:opacity-100 transition-opacity p-1"
-                    >
-                      <Edit3 size={16} />
-                    </button>
-                 </div>
-                 <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
-                    <span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-700/50 px-2 py-0.5 rounded text-[10px] uppercase tracking-wide">
-                       {task.projectTitle}
-                    </span>
-                    {task.priority && (
-                      <span className={`${
-                        task.priority === 'High' ? 'text-red-500' : 
-                        task.priority === 'Low' ? 'text-blue-500' : 'text-yellow-600'
-                      }`}>
-                        {task.priority}
-                      </span>
-                    )}
-                    {task.dueDate && (
-                      <span className="flex items-center gap-1">
-                        <Calendar size={12} />
-                        {new Date(task.dueDate).toLocaleDateString()}
-                      </span>
-                    )}
-                    {task.notes && task.notes.length > 0 && (
-                      <span className="flex items-center gap-1">
-                        <MessageCircle size={12} /> {task.notes.length}
-                      </span>
-                    )}
-                 </div>
-               </div>
+          Object.entries(groupedTasks).map(([groupTitle, tasks]) => (
+            <div key={groupTitle} className="animate-fade-in">
+              {groupBy !== 'None' && (
+                <div className="flex items-center gap-2 mb-3 px-1">
+                   {groupBy === 'Project' && <Briefcase size={16} className="text-brand-500" />}
+                   {groupBy === 'Date' && <Calendar size={16} className="text-brand-500" />}
+                   {groupBy === 'Priority' && <Target size={16} className="text-brand-500" />}
+                   <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+                     {groupTitle} <span className="text-slate-400 font-normal ml-1">({tasks.length})</span>
+                   </h3>
+                </div>
+              )}
+              
+              <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-700 overflow-hidden">
+                {tasks.map(task => (
+                  <div 
+                    key={`${task.projectId}-${task.id}`} 
+                    className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group flex items-start gap-4"
+                  >
+                     {/* Radio Button Area - Toggle */}
+                     <div 
+                       className="pt-1 cursor-pointer"
+                       onClick={(e) => { e.stopPropagation(); onToggleTask(task.projectId, task.id); }}
+                     >
+                       {task.isCompleted ? (
+                         <CheckCircle className="text-green-500" size={20} />
+                       ) : (
+                         <div className={`w-5 h-5 rounded-full border-2 ${
+                           task.priority === 'High' ? 'border-red-400' : 
+                           task.priority === 'Low' ? 'border-blue-300' : 'border-slate-300 dark:border-slate-500'
+                         } hover:border-brand-500 transition-colors`}></div>
+                       )}
+                     </div>
+                     
+                     <div className="flex-1 min-w-0">
+                       <div className="flex justify-between items-start">
+                          <p 
+                            className={`font-medium truncate cursor-pointer hover:text-brand-600 dark:hover:text-brand-400 transition-colors ${task.isCompleted ? 'text-slate-400 line-through' : 'text-slate-800 dark:text-slate-200'}`}
+                            onClick={(e) => { e.stopPropagation(); onEditTask(task.projectId, task); }}
+                          >
+                            {task.title}
+                          </p>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); onEditTask(task.projectId, task); }}
+                            className="text-slate-300 hover:text-brand-600 dark:text-slate-600 dark:hover:text-brand-400 opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                          >
+                            <Edit3 size={16} />
+                          </button>
+                       </div>
+                       <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
+                          {groupBy !== 'Project' && (
+                             <span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-700/50 px-2 py-0.5 rounded text-[10px] uppercase tracking-wide">
+                               {task.projectTitle}
+                             </span>
+                          )}
+                          
+                          {groupBy !== 'Priority' && task.priority && (
+                            <span className={`${
+                              task.priority === 'High' ? 'text-red-500' : 
+                              task.priority === 'Low' ? 'text-blue-500' : 'text-yellow-600'
+                            }`}>
+                              {task.priority}
+                            </span>
+                          )}
+                          
+                          {task.dueDate && (
+                            <span className={`flex items-center gap-1 ${
+                               new Date(task.dueDate) < new Date() && !task.isCompleted ? 'text-red-500 font-medium' : ''
+                            }`}>
+                              <Calendar size={12} />
+                              {new Date(task.dueDate).toLocaleDateString()}
+                            </span>
+                          )}
+                          
+                          {task.notes && task.notes.length > 0 && (
+                            <span className="flex items-center gap-1">
+                              <MessageCircle size={12} /> {task.notes.length}
+                            </span>
+                          )}
+                       </div>
+                     </div>
+                  </div>
+                ))}
+              </div>
             </div>
           ))
         )}
@@ -877,6 +1280,7 @@ const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClose, onAd
         isCompleted: false,
         priority: 'Medium' // Default priority
       })),
+      notes: [], // Initialize notes array
       createdAt: Date.now()
     };
 
@@ -1186,6 +1590,12 @@ const NavButton = ({ active, onClick, icon, label, onAdd }: { active: boolean, o
 const SparkleIcon = () => (
   <svg className="w-6 h-6 text-yellow-300 mb-3" fill="currentColor" viewBox="0 0 20 20">
     <path d="M10 2l2.5 5.5L18 10l-5.5 2.5L10 18l-2.5-5.5L2 10l5.5-2.5L10 2z" />
+  </svg>
+);
+
+const StarIcon = () => (
+  <svg className="w-[18px] h-[18px]" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
   </svg>
 );
 
@@ -1839,6 +2249,7 @@ const Portal: React.FC<PortalProps> = ({
                 project={activeProject}
                 projects={projects}
                 onSelectProject={handleSelectProject}
+                // Back button handler removed from UI but prop kept for type safety or future use
                 onBack={() => setView(View.PROJECTS)}
                 onToggleTask={onToggleTask}
                 onUpdatePriority={onUpdatePriority}
@@ -2003,6 +2414,7 @@ const App: React.FC = () => {
         isCompleted: false,
         priority: 'Medium'
       })),
+      notes: [],
       createdAt: Date.now()
     };
 

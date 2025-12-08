@@ -281,4 +281,88 @@ export const getProjectCoaching = async (title: string, description: string, cat
       actionableStep: "Complete one small task for this project right now."
     };
   }
-}
+};
+
+export const generateProjectQuestions = async (title: string, description: string): Promise<string[]> => {
+  if (!apiKey) {
+    return [
+      "What is the main goal of this project?",
+      "Who is the target audience?",
+      "What are the key milestones?"
+    ];
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: `I am starting a project: "${title}" - "${description}".
+      Generate 3 specific, probing questions to help me clarify the scope and intent of this project.
+      Return only the questions as strings.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING }
+        }
+      }
+    });
+
+    const text = response.text;
+    if (!text) return [];
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("Error generating questions:", error);
+    return [
+      "What is the ultimate success metric?",
+      "What resources do you currently have?",
+      "What is the first blocker you anticipate?"
+    ];
+  }
+};
+
+export const refineProjectPlan = async (title: string, description: string, context: string): Promise<{ newDescription: string, suggestedTasks: string[] }> => {
+   if (!apiKey) {
+    return {
+      newDescription: description + " (Refined)",
+      suggestedTasks: ["Refined task 1", "Refined task 2", "Refined task 3"]
+    };
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: `Project: "${title}".
+      Original Description: "${description}".
+      User Answers to Discovery Questions:
+      ${context}
+
+      Based on these answers, refine the project description to be more specific and actionable.
+      Also generate 5 concrete tasks to get started.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+             newDescription: { type: Type.STRING },
+             suggestedTasks: { type: Type.ARRAY, items: { type: Type.STRING } }
+          },
+          required: ["newDescription", "suggestedTasks"]
+        }
+      }
+    });
+
+    const text = response.text;
+    if (!text) throw new Error("No response");
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("Error refining plan:", error);
+    return {
+      newDescription: description,
+      suggestedTasks: ["Define goals", "Research", "First step"]
+    };
+  }
+};

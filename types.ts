@@ -7,9 +7,18 @@ export enum Status {
 
 export type Priority = 'High' | 'Medium' | 'Low';
 
+export type Mood = 'Excited' | 'Confident' | 'Neutral' | 'Anxious' | 'Stuck' | 'Proud' | 'Overwhelmed';
+
 export interface TaskNote {
   id: string;
   content: string;
+  createdAt: number;
+}
+
+export interface ProjectNote {
+  id: string;
+  content: string;
+  mood: Mood;
   createdAt: number;
 }
 
@@ -31,7 +40,10 @@ export interface Project {
   category: 'Personal' | 'Career' | 'Spiritual' | 'Health';
   progress: number;
   tasks: Task[];
+  notes: ProjectNote[]; // Added field
   createdAt: number;
+  hasCompletedIntake?: boolean;
+  userContext?: string;
 }
 
 export interface WisdomNugget {
@@ -63,6 +75,7 @@ export interface SearchResult {
 export interface FollowUpResult {
   answer: string;
   suggestedTasks: string[]; // Max 3
+  variations?: ReframeVariation[];
 }
 
 export enum View {
