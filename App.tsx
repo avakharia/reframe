@@ -61,7 +61,7 @@ const translations = {
     dashboard: "Dashboard",
     projects: "Projects",
     tasks: "Tasks",
-    wisdom: "Wisdom",
+    wisdom: "Surprise Me",
     profile: "Profile",
     signIn: "Sign In",
     signOut: "Sign Out",
@@ -108,7 +108,7 @@ const translations = {
     dashboard: "Tablero",
     projects: "Proyectos",
     tasks: "Tareas",
-    wisdom: "Sabiduría",
+    wisdom: "Sorpréndeme",
     profile: "Perfil",
     signIn: "Entrar",
     signOut: "Salir",
@@ -375,6 +375,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
 interface ProjectDetailPageProps {
   project: Project;
+  projects: Project[]; // All projects for switching
+  onSelectProject: (id: string) => void;
   onBack: () => void;
   onToggleTask: (pid: string, tid: string) => void;
   onUpdatePriority: (pid: string, tid: string, priority: Priority) => void;
@@ -386,13 +388,18 @@ interface ProjectDetailPageProps {
 }
 
 const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ 
-  project, onBack, onToggleTask, onUpdatePriority, onEditTask, onAddTask, onUpdateProject, onNavigateToToolbox, lang 
+  project, projects, onSelectProject, onBack, onToggleTask, onUpdatePriority, onEditTask, onAddTask, onUpdateProject, onNavigateToToolbox, lang 
 }) => {
   const [activeTab, setActiveTab] = useState<'Action' | 'Coach'>('Action');
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [descInput, setDescInput] = useState(project.description);
   const [coachWisdom, setCoachWisdom] = useState<WisdomNugget | null>(null);
   const [loadingWisdom, setLoadingWisdom] = useState(false);
+
+  // Update descInput when project changes (via switcher)
+  useEffect(() => {
+    setDescInput(project.description);
+  }, [project.id, project.description]);
 
   // Re-calculate stats
   const totalTasks = project.tasks.length;
@@ -427,9 +434,28 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
 
   return (
     <div className="max-w-6xl mx-auto pb-20 animate-fade-in">
-       <button onClick={onBack} className="flex items-center text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 mb-6 transition-colors">
-         <ArrowLeft size={20} className="mr-2" /> Back to Projects
-       </button>
+       <div className="flex justify-between items-center mb-6">
+         {/* Project Switcher Dropdown */}
+         <div className="relative group">
+           <div className="flex items-center gap-2 text-slate-500 mb-1 text-xs font-medium uppercase tracking-wider">
+             Switch Project
+           </div>
+           <select 
+             value={project.id}
+             onChange={(e) => onSelectProject(e.target.value)}
+             className="appearance-none bg-white dark:bg-slate-800 border-none text-xl md:text-2xl font-bold text-slate-900 dark:text-white pr-8 py-1 focus:ring-0 cursor-pointer hover:text-brand-600 transition-colors w-full max-w-md truncate"
+           >
+             {projects.map(p => (
+               <option key={p.id} value={p.id}>{p.title}</option>
+             ))}
+           </select>
+           <ChevronDown className="absolute right-0 bottom-2 text-slate-400 pointer-events-none" size={20} />
+         </div>
+         
+         <button onClick={onBack} className="text-sm font-medium text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 transition-colors">
+           Back to Overview
+         </button>
+       </div>
 
        {/* Header Section */}
        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-10 shadow-sm border border-slate-100 dark:border-slate-700 mb-8 relative overflow-hidden group">
@@ -439,22 +465,15 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
              project.category === 'Spiritual' ? 'bg-purple-500' : 'bg-orange-500'
           }`}></div>
           
-          <div className="flex flex-col md:flex-row justify-between gap-6 relative z-10">
+          <div className="flex flex-col md:flex-row justify-between gap-8 relative z-10">
              <div className="flex-1">
                 <div className="flex items-center gap-3 mb-4">
-                   <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                     ${project.category === 'Career' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 
-                       project.category === 'Health' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
-                       project.category === 'Spiritual' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
-                       'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'}`}>
-                     {project.category}
-                   </span>
                    <span className="text-slate-400 dark:text-slate-500 text-sm flex items-center gap-1">
                      <Calendar size={14} /> Created {new Date(project.createdAt).toLocaleDateString()}
                    </span>
                 </div>
                 
-                <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">{project.title}</h1>
+                <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-6 leading-tight">{project.title}</h1>
                 
                 <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700 max-w-3xl">
                    <div className="flex justify-between items-start mb-2">
@@ -488,16 +507,27 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
                 </div>
              </div>
 
-             {/* Progress Ring */}
-             <div className="flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-6 min-w-[150px]">
-                 <div className="relative w-20 h-20 flex items-center justify-center mb-2">
-                    <svg className="w-full h-full transform -rotate-90">
-                      <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-200 dark:text-slate-700" />
-                      <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="8" fill="transparent" strokeDasharray={226} strokeDashoffset={226 - (226 * progress) / 100} className="text-brand-500 transition-all duration-1000 ease-out" />
-                    </svg>
-                    <span className="absolute text-xl font-bold text-slate-800 dark:text-white">{progress}%</span>
+             {/* Right Column: Category + Progress Ring */}
+             <div className="flex flex-col items-center gap-4">
+                 {/* Category Badge - Aligned above progress */}
+                 <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide
+                     ${project.category === 'Career' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 
+                       project.category === 'Health' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
+                       project.category === 'Spiritual' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
+                       'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'}`}>
+                     {project.category}
+                 </span>
+
+                 <div className="flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-6 min-w-[150px]">
+                     <div className="relative w-20 h-20 flex items-center justify-center mb-2">
+                        <svg className="w-full h-full transform -rotate-90">
+                          <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-200 dark:text-slate-700" />
+                          <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="8" fill="transparent" strokeDasharray={226} strokeDashoffset={226 - (226 * progress) / 100} className="text-brand-500 transition-all duration-1000 ease-out" />
+                        </svg>
+                        <span className="absolute text-xl font-bold text-slate-800 dark:text-white">{progress}%</span>
+                     </div>
+                     <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Completed</p>
                  </div>
-                 <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Completed</p>
              </div>
           </div>
        </div>
@@ -650,10 +680,6 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
                <h4 className="font-bold text-slate-800 dark:text-white mb-4 text-sm uppercase">Quick Stats</h4>
                <div className="space-y-4">
-                 <div className="flex justify-between items-center text-sm">
-                   <span className="text-slate-500">Total Tasks</span>
-                   <span className="font-bold text-slate-800 dark:text-white">{totalTasks}</span>
-                 </div>
                  <div className="flex justify-between items-center text-sm">
                    <span className="text-slate-500">Completed</span>
                    <span className="font-bold text-green-600">{completedTasks}</span>
@@ -1612,11 +1638,12 @@ interface PortalProps {
   onSaveSearchResult: (v: ReframeVariation) => void;
   t: any;
   lang: Language;
+  onLogout: () => void;
 }
 
 const Portal: React.FC<PortalProps> = ({ 
   user, view, setView, projects, activeProjectId, setActiveProjectId, onAddProject, onToggleTask, onDeleteProject, onUpdatePriority, onEditTask, onNewTask, onAddTask, onUpdateProject,
-  searchResults, onSearch, loadingSearch, onSaveSearchResult, t, lang 
+  searchResults, onSearch, loadingSearch, onSaveSearchResult, t, lang, onLogout
 }) => {
   const [filter, setFilter] = useState<'All' | 'Personal' | 'Career' | 'Health' | 'Spiritual'>('All');
 
@@ -1661,16 +1688,40 @@ const Portal: React.FC<PortalProps> = ({
                onAdd={onNewTask}
              />
              <NavButton active={view === View.WISDOM} onClick={() => setView(View.WISDOM)} icon={<Lightbulb size={20} />} label={t.wisdom} />
-             <NavButton active={view === View.PROFILE} onClick={() => setView(View.PROFILE)} icon={<UserCircle size={20} />} label={t.profile} />
+             {/* Profile Removed from here as requested */}
            </nav>
         </div>
         
         <div className="mt-auto p-6 border-t border-slate-100 dark:border-slate-800">
-           <div className="bg-brand-50 dark:bg-brand-900/20 rounded-xl p-4">
+           <div className="bg-brand-50 dark:bg-brand-900/20 rounded-xl p-4 mb-4">
              <div className="flex items-center gap-2 text-brand-700 dark:text-brand-300 font-bold text-sm mb-2">
                <Zap size={16} /> Daily Streak
              </div>
              <p className="text-xs text-brand-600 dark:text-brand-400">You've logged in 3 days in a row! Keep it up!</p>
+           </div>
+           
+           <div className="flex items-center justify-between pt-2">
+              <button 
+                onClick={() => setView(View.PROFILE)} 
+                className="p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                title={t.settings}
+              >
+                <Settings size={20} />
+              </button>
+              <button 
+                onClick={() => setView(View.PROFILE)} 
+                className="p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
+                title={t.profile}
+              >
+                <UserCircle size={20} />
+              </button>
+              <button 
+                onClick={onLogout} 
+                className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                title={t.signOut}
+              >
+                <LogOut size={20} />
+              </button>
            </div>
         </div>
       </aside>
@@ -1715,7 +1766,7 @@ const Portal: React.FC<PortalProps> = ({
                     <h3 className="text-lg font-bold text-slate-800 dark:text-white">Recent Projects</h3>
                     <button onClick={() => setView(View.PROJECTS)} className="text-sm text-brand-600 dark:text-brand-400 hover:underline">View All</button>
                   </div>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
                     {projects.slice(0, 3).map(project => (
                       <ProjectCard 
                         key={project.id} 
@@ -1767,7 +1818,7 @@ const Portal: React.FC<PortalProps> = ({
                   ))}
                </div>
 
-               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+               <div className="grid md:grid-cols-2 gap-6">
                  {filteredProjects.map(project => (
                     <ProjectCard 
                       key={project.id} 
@@ -1786,6 +1837,8 @@ const Portal: React.FC<PortalProps> = ({
            {view === View.PROJECT_DETAIL && activeProject && (
               <ProjectDetailPage 
                 project={activeProject}
+                projects={projects}
+                onSelectProject={handleSelectProject}
                 onBack={() => setView(View.PROJECTS)}
                 onToggleTask={onToggleTask}
                 onUpdatePriority={onUpdatePriority}
@@ -2260,6 +2313,7 @@ const App: React.FC = () => {
               onSaveSearchResult={handleSaveSearchResult}
               t={t}
               lang={lang}
+              onLogout={handleLogout}
             />
          ) : (
            <div className="flex-1 overflow-y-auto">

@@ -1,9 +1,21 @@
+// services/firebase.ts
 
-import firebase from "firebase/app";
-import "firebase/auth";
-import "firebase/analytics";
+import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  updateProfile,
+  Auth,
+  User as FirebaseUser
+} from "firebase/auth";
+import { getAnalytics } from "firebase/analytics";
 
-export type User = firebase.User;
+export type User = FirebaseUser;
 
 // ------------------------------------------------------------------
 // FIREBASE CONFIGURATION
@@ -20,21 +32,21 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-let app: firebase.app.App | undefined;
-let auth: firebase.auth.Auth | undefined;
+let app: FirebaseApp | undefined;
+let auth: Auth | undefined;
 
 try {
   // Check if apps already initialized
-  if (!firebase.apps.length) {
-    app = firebase.initializeApp(firebaseConfig);
+  if (getApps().length === 0) {
+    app = initializeApp(firebaseConfig);
   } else {
-    app = firebase.app();
+    app = getApp();
   }
   
-  auth = firebase.auth();
+  auth = getAuth(app);
   
   if (typeof window !== 'undefined') {
-    firebase.analytics();
+    getAnalytics(app);
   }
 } catch (e) {
   console.error("Firebase Initialization Error:", e);
@@ -42,7 +54,7 @@ try {
 }
 
 // Providers
-const googleProvider = new firebase.auth.GoogleAuthProvider();
+const googleProvider = new GoogleAuthProvider();
 
 // Mock Login Helper (Fallback)
 const mockLogin = () => {
@@ -67,10 +79,10 @@ export const signUpWithEmail = async (email: string, pass: string, name: string)
   if (!auth) return mockLogin();
 
   try {
-    const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     // Update the user's display name
     if (userCredential.user) {
-        await userCredential.user.updateProfile({
+        await updateProfile(userCredential.user, {
           displayName: name
         });
     }
@@ -88,7 +100,7 @@ export const loginWithEmail = async (email: string, pass: string) => {
   if (!auth) return mockLogin();
 
   try {
-    const userCredential = await auth.signInWithEmailAndPassword(email, pass);
+    const userCredential = await signInWithEmailAndPassword(auth, email, pass);
     return userCredential;
   } catch (error: any) {
     console.error("Login Error:", error.code);
@@ -105,7 +117,7 @@ export const signInWithSocial = async (providerName: 'google' = 'google') => {
   }
 
   try {
-    const result = await auth.signInWithPopup(googleProvider);
+    const result = await signInWithPopup(auth, googleProvider);
     return result;
   } catch (error: any) {
     console.error("Firebase Login Error:", error);
@@ -133,7 +145,7 @@ export const signInWithSocial = async (providerName: 'google' = 'google') => {
 
 export const logout = async () => {
   if (auth) {
-    await auth.signOut();
+    await signOut(auth);
   }
 };
 
@@ -144,5 +156,5 @@ export const subscribeToAuth = (callback: (user: User | null) => void): (() => v
         callback(null);
         return () => {};
     }
-    return auth.onAuthStateChanged(callback);
+    return onAuthStateChanged(auth, callback);
 };

@@ -64,7 +64,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onT
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 p-5 hover:shadow-md transition-all duration-200 relative overflow-hidden group">
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 hover:shadow-md transition-all duration-200 relative overflow-hidden group flex flex-col h-full">
       
       {/* Delete Confirmation Overlay */}
       {showDeleteConfirm && (
@@ -89,51 +89,44 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onT
         </div>
       )}
 
-      <div className="flex justify-between items-start mb-3">
+      <div className="flex justify-between items-start mb-2">
         <div 
           onClick={() => onSelect(project.id)} 
-          className="cursor-pointer flex-1"
+          className="cursor-pointer flex-1 pr-4"
         >
-          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mb-2 
-            ${project.category === 'Career' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 
-              project.category === 'Health' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
-              project.category === 'Spiritual' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
-              'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'}`}>
-            {project.category}
-          </span>
-          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">{project.title}</h3>
+          {/* Title Emphasized */}
+          <h3 className="text-2xl font-extrabold text-slate-800 dark:text-slate-100 leading-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+            {project.title}
+          </h3>
         </div>
         <div className="flex flex-col items-end gap-2">
-           <div className="text-slate-400 dark:text-slate-500">
-            <Target size={20} />
-           </div>
            {/* Delete Button (visible on hover or always on touch) */}
            <button 
              onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(true); }}
              className="text-slate-300 hover:text-red-500 dark:text-slate-600 dark:hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
              aria-label="Delete Project"
            >
-             <Trash2 size={16} />
+             <Trash2 size={18} />
            </button>
         </div>
       </div>
       
-      <p className="text-slate-600 dark:text-slate-300 text-sm mb-4 line-clamp-2 h-10">{project.description}</p>
+      <p className="text-slate-600 dark:text-slate-300 text-sm mb-5 line-clamp-2 min-h-[2.5rem]">{project.description}</p>
       
-      <div className="mb-4">
-        <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
-          <span>Progress (Weighted)</span>
+      <div className="mb-6">
+        <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1 font-medium">
+          <span>Progress</span>
           <span>{percentage}%</span>
         </div>
-        <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+        <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
           <div 
-            className="bg-brand-500 h-2 rounded-full transition-all duration-700 ease-out" 
+            className="bg-brand-500 h-2.5 rounded-full transition-all duration-700 ease-out" 
             style={{ width: `${percentage}%` }}
           />
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3 flex-1">
         {project.tasks.slice(0, 3).map(task => (
           <div 
             key={task.id} 
@@ -141,15 +134,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onT
           >
             {/* Click to Toggle Completion */}
             <div 
-              className="relative mr-2 flex-shrink-0 w-4 h-4 cursor-pointer hover:scale-110 transition-transform"
+              className="relative mr-3 flex-shrink-0 w-5 h-5 cursor-pointer hover:scale-110 transition-transform"
               onClick={(e) => { e.stopPropagation(); onToggleTask(project.id, task.id); }}
             >
                <CheckCircle2 
-                 size={16} 
+                 size={20} 
                  className={`text-green-500 absolute inset-0 transition-all duration-300 transform ${task.isCompleted ? 'scale-100 opacity-100 rotate-0' : 'scale-50 opacity-0 -rotate-45'}`} 
                />
                <Circle 
-                 size={16} 
+                 size={20} 
                  className={`text-slate-300 dark:text-slate-600 group-hover/task:text-brand-500 absolute inset-0 transition-all duration-300 transform ${task.isCompleted ? 'scale-50 opacity-0' : 'scale-100 opacity-100'}`} 
                />
             </div>
@@ -166,7 +159,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onT
                {/* Priority Indicator */}
                <div 
                   onClick={(e) => cyclePriority(e, task.id, task.priority)}
-                  className={`w-2 h-2 rounded-full shadow-sm cursor-pointer ${getPriorityColor(task.priority)} hover:scale-125 transition-transform`}
+                  className={`w-2.5 h-2.5 rounded-full shadow-sm cursor-pointer ${getPriorityColor(task.priority)} hover:scale-125 transition-transform`}
                   title={`Priority: ${task.priority || 'Medium'} (Click to change)`}
                />
                
@@ -175,14 +168,25 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onT
                  onClick={(e) => handleEditClick(e, task)}
                  className="text-slate-300 hover:text-brand-500 dark:text-slate-600 dark:hover:text-brand-400 p-1"
                >
-                 <Edit2 size={12} />
+                 <Edit2 size={14} />
                </button>
             </div>
           </div>
         ))}
         {project.tasks.length > 3 && (
-          <p className="text-xs text-slate-400 dark:text-slate-500 pl-6 pt-1">+ {project.tasks.length - 3} more tasks</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 pl-8 pt-1">+ {project.tasks.length - 3} more tasks</p>
         )}
+      </div>
+
+      {/* Footer: Category at bottom */}
+      <div className="mt-5 pt-4 border-t border-slate-50 dark:border-slate-700/50 flex justify-end">
+         <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
+            ${project.category === 'Career' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-300' : 
+              project.category === 'Health' ? 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-300' :
+              project.category === 'Spiritual' ? 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-300' :
+              'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-300'}`}>
+            {project.category}
+          </span>
       </div>
     </div>
   );
