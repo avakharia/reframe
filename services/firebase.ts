@@ -1,15 +1,9 @@
-import { initializeApp } from 'firebase/app';
-import { getAnalytics } from "firebase/analytics";
-import { 
-  getAuth, 
-  GoogleAuthProvider, 
-  signInWithPopup, 
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut as firebaseSignOut,
-  updateProfile,
-  User 
-} from 'firebase/auth';
+
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/analytics";
+
+export type User = firebase.User;
 
 // ------------------------------------------------------------------
 // FIREBASE CONFIGURATION
@@ -26,26 +20,34 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-let app;
-let auth: any;
-let analytics;
+let app: firebase.app.App | undefined;
+let auth: firebase.auth.Auth | undefined;
 
 try {
-  app = initializeApp(firebaseConfig);
-  analytics = getAnalytics(app);
-  auth = getAuth(app);
+  // Check if apps already initialized
+  if (!firebase.apps.length) {
+    app = firebase.initializeApp(firebaseConfig);
+  } else {
+    app = firebase.app();
+  }
+  
+  auth = firebase.auth();
+  
+  if (typeof window !== 'undefined') {
+    firebase.analytics();
+  }
 } catch (e) {
   console.error("Firebase Initialization Error:", e);
   console.warn("Running in Demo Mode due to initialization failure.");
 }
 
 // Providers
-const googleProvider = new GoogleAuthProvider();
+const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 // Mock Login Helper (Fallback)
 const mockLogin = () => {
   console.log("Performing mock login for demo...");
-  return new Promise<any>((resolve) => {
+  return new Promise<{user: Partial<User>}>((resolve) => {
     setTimeout(() => {
       resolve({
         user: {
@@ -53,7 +55,7 @@ const mockLogin = () => {
           displayName: 'Demo User',
           email: 'demo@reframe.app',
           photoURL: null
-        }
+        } as any
       });
     }, 1000);
   });
@@ -65,11 +67,13 @@ export const signUpWithEmail = async (email: string, pass: string, name: string)
   if (!auth) return mockLogin();
 
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+    const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
     // Update the user's display name
-    await updateProfile(userCredential.user, {
-      displayName: name
-    });
+    if (userCredential.user) {
+        await userCredential.user.updateProfile({
+          displayName: name
+        });
+    }
     return userCredential;
   } catch (error: any) {
     console.error("Sign Up Error:", error.code);
@@ -84,7 +88,7 @@ export const loginWithEmail = async (email: string, pass: string) => {
   if (!auth) return mockLogin();
 
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+    const userCredential = await auth.signInWithEmailAndPassword(email, pass);
     return userCredential;
   } catch (error: any) {
     console.error("Login Error:", error.code);
@@ -101,7 +105,7 @@ export const signInWithSocial = async (providerName: 'google' = 'google') => {
   }
 
   try {
-    const result = await signInWithPopup(auth, googleProvider);
+    const result = await auth.signInWithPopup(googleProvider);
     return result;
   } catch (error: any) {
     console.error("Firebase Login Error:", error);
@@ -129,8 +133,16 @@ export const signInWithSocial = async (providerName: 'google' = 'google') => {
 
 export const logout = async () => {
   if (auth) {
-    await firebaseSignOut(auth);
+    await auth.signOut();
   }
 };
 
-export const getAuthInstance = () => auth;
+// Helper to subscribe to auth changes without exposing the auth instance directly
+export const subscribeToAuth = (callback: (user: User | null) => void): (() => void) => {
+    if (!auth) {
+        // If auth isn't initialized, immediately call back with null (or mock user if forced)
+        callback(null);
+        return () => {};
+    }
+    return auth.onAuthStateChanged(callback);
+};

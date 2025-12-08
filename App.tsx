@@ -4,8 +4,7 @@ import { View, Project, Task, SearchResult, ReframeVariation, ReframeType, Follo
 import { WisdomGenerator } from './components/WisdomGenerator';
 import { ProjectCard } from './components/ProjectCard';
 import { suggestProjectTasks, analyzeSituation, getFollowUpAdvice, getProjectCoaching } from './services/geminiService';
-import { signInWithSocial, signUpWithEmail, loginWithEmail, logout, getAuthInstance } from './services/firebase';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { signInWithSocial, signUpWithEmail, loginWithEmail, logout, subscribeToAuth, User } from './services/firebase';
 import { 
   LayoutDashboard, 
   ListTodo, 
@@ -963,7 +962,10 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
     try {
       setError(null);
       const result = await signInWithSocial('google');
-      onLoginSuccess(result.user);
+      if (result.user) {
+          // Type assertion to fix type mismatch if partial user returned
+          onLoginSuccess(result.user as User);
+      }
       onClose();
     } catch (err: any) {
       setError(err.message || 'Login failed.');
@@ -985,10 +987,10 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
         }
         
         const result = await signUpWithEmail(email, password, fullName);
-        onLoginSuccess(result.user);
+        if (result.user) onLoginSuccess(result.user as User);
       } else {
         const result = await loginWithEmail(email, password);
-        onLoginSuccess(result.user);
+        if (result.user) onLoginSuccess(result.user as User);
       }
       onClose();
     } catch (err: any) {
@@ -1881,11 +1883,12 @@ const App: React.FC = () => {
       setDarkMode(true);
     }
 
-    // Auth Init
-    const unsubscribe = onAuthStateChanged(getAuthInstance(), (currentUser) => {
+    // Auth Init using modular subscription helper
+    const unsubscribe = subscribeToAuth((currentUser) => {
       setUser(currentUser);
       setLoading(false);
     });
+
     return () => unsubscribe();
   }, []);
 
@@ -2283,4 +2286,83 @@ const App: React.FC = () => {
                <LandingPageContent 
                  onSearch={handleSearch} 
                  t={t} 
-                 set
+                 setLandingView={setLandingView}
+                 lang={lang}
+               />
+             )}
+             
+             {/* Footer */}
+             <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-12">
+                <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-8">
+                   <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-6 h-6 bg-brand-600 rounded-md flex items-center justify-center text-white text-xs font-bold">R</div>
+                        <span className="font-bold text-lg text-slate-900 dark:text-white">Reframe</span>
+                      </div>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+                        Helping you build a better mind, one project at a time.
+                      </p>
+                   </div>
+                   
+                   <div>
+                     <h4 className="font-bold text-slate-900 dark:text-white mb-4">{t.startHere}</h4>
+                     <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                       <li><button onClick={() => user ? setPortalView(View.ROOTS) : setLandingView(View.ROOTS)} className="hover:text-brand-500">{t.roots}</button></li>
+                       <li><button onClick={() => user ? setPortalView(View.BRANCHES) : setLandingView(View.BRANCHES)} className="hover:text-brand-500">{t.branches}</button></li>
+                       <li><button onClick={() => user ? setPortalView(View.TOOLBOX) : setLandingView(View.TOOLBOX)} className="hover:text-brand-500">{t.toolbox}</button></li>
+                     </ul>
+                   </div>
+
+                   <div>
+                     <h4 className="font-bold text-slate-900 dark:text-white mb-4">{t.about}</h4>
+                     <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                       <li><a href="#" className="hover:text-brand-500">Manifesto</a></li>
+                       <li><a href="#" className="hover:text-brand-500">{t.submitTopic}</a></li>
+                       <li><a href="#" className="hover:text-brand-500">Contact</a></li>
+                     </ul>
+                   </div>
+
+                   <div>
+                     <h4 className="font-bold text-slate-900 dark:text-white mb-4">Legal</h4>
+                     <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                       <li><a href="#" className="hover:text-brand-500">{t.terms}</a></li>
+                       <li><a href="#" className="hover:text-brand-500">{t.privacy}</a></li>
+                     </ul>
+                   </div>
+                </div>
+                <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 text-center text-xs text-slate-400">
+                   &copy; {new Date().getFullYear()} Reframe. All rights reserved.
+                </div>
+             </footer>
+           </div>
+         )}
+      </main>
+
+      {/* --- Global Modals --- */}
+      <LoginModal 
+        isOpen={isLoginOpen} 
+        onClose={() => setIsLoginOpen(false)} 
+        onLoginSuccess={handleLoginSuccess}
+      />
+      
+      <NewProjectModal 
+        isOpen={isNewProjectOpen} 
+        onClose={() => setIsNewProjectOpen(false)} 
+        onAdd={handleAddProject} 
+      />
+
+      <TaskDetailModal 
+        isOpen={isTaskModalOpen}
+        onClose={() => { setIsTaskModalOpen(false); setEditingTask(null); }}
+        task={editingTask}
+        projects={projects}
+        onSave={handleSaveTask}
+        onDelete={handleDeleteTask}
+        lang={lang}
+      />
+
+    </div>
+  );
+};
+
+export default App;
