@@ -382,11 +382,12 @@ interface ProjectDetailPageProps {
   onEditTask: (pid: string, task: Task) => void;
   onAddTask: (pid: string) => void;
   onUpdateProject: (p: Project) => void;
+  onNavigateToToolbox: () => void;
   lang: Language;
 }
 
 const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ 
-  project, onBack, onToggleTask, onUpdatePriority, onEditTask, onAddTask, onUpdateProject, lang 
+  project, onBack, onToggleTask, onUpdatePriority, onEditTask, onAddTask, onUpdateProject, onNavigateToToolbox, lang 
 }) => {
   const [activeTab, setActiveTab] = useState<'Action' | 'Coach'>('Action');
   const [isEditingDesc, setIsEditingDesc] = useState(false);
@@ -672,7 +673,10 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
                 <p className="text-xs text-orange-700 dark:text-orange-400 mb-4 leading-relaxed">
                   If you're procrastinating on this project, try the <strong>"5-Minute Rule"</strong>. Commit to working on it for just 5 minutes. Usually, that's enough to break the inertia.
                 </p>
-                <button className="text-xs font-bold text-orange-600 hover:text-orange-800 dark:hover:text-orange-300 underline">
+                <button 
+                  onClick={onNavigateToToolbox}
+                  className="text-xs font-bold text-orange-600 hover:text-orange-800 dark:hover:text-orange-300 underline"
+                >
                   Read more in Toolbox
                 </button>
              </div>
@@ -1786,6 +1790,7 @@ const Portal: React.FC<PortalProps> = ({
                 onEditTask={onEditTask}
                 onAddTask={onAddTask}
                 onUpdateProject={onUpdateProject}
+                onNavigateToToolbox={() => setView(View.TOOLBOX)}
                 lang={lang}
               />
            )}
@@ -2278,74 +2283,4 @@ const App: React.FC = () => {
                <LandingPageContent 
                  onSearch={handleSearch} 
                  t={t} 
-                 setLandingView={setLandingView}
-                 lang={lang}
-               />
-             )}
-           </div>
-         )}
-      </main>
-
-      {/* --- Footer (Only on Landing) --- */}
-      {!user && !landingView && (
-        <footer className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-12 px-4">
-          <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-8">
-            <div className="col-span-2">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-6 h-6 bg-brand-600 rounded-md rotate-3"></div>
-                <span className="font-bold text-xl text-slate-900 dark:text-white">Reframe</span>
-              </div>
-              <p className="text-slate-500 dark:text-slate-400 max-w-sm">
-                A project-based approach to wisdom. Building better humans, one perspective at a time.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-bold text-slate-900 dark:text-white mb-4">{t.about}</h4>
-              <ul className="space-y-2 text-slate-500 dark:text-slate-400 text-sm">
-                <li><a href="#" className="hover:text-brand-600 dark:hover:text-brand-400">Our Story</a></li>
-                <li><a href="#" className="hover:text-brand-600 dark:hover:text-brand-400">Philosophy</a></li>
-                <li><a href="#" className="hover:text-brand-600 dark:hover:text-brand-400">{t.submitTopic}</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-slate-900 dark:text-white mb-4">Legal</h4>
-              <ul className="space-y-2 text-slate-500 dark:text-slate-400 text-sm">
-                <li><a href="#" className="hover:text-brand-600 dark:hover:text-brand-400">{t.terms}</a></li>
-                <li><a href="#" className="hover:text-brand-600 dark:hover:text-brand-400">{t.privacy}</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 text-center text-slate-400 text-xs">
-            © {new Date().getFullYear()} Reframe. All rights reserved.
-          </div>
-        </footer>
-      )}
-
-      {/* --- Modals --- */}
-      <LoginModal 
-        isOpen={isLoginOpen} 
-        onClose={() => setIsLoginOpen(false)} 
-        onLoginSuccess={handleLoginSuccess}
-      />
-      
-      <NewProjectModal 
-        isOpen={isNewProjectOpen} 
-        onClose={() => setIsNewProjectOpen(false)} 
-        onAdd={handleAddProject} 
-      />
-
-      <TaskDetailModal 
-        isOpen={isTaskModalOpen}
-        onClose={() => { setIsTaskModalOpen(false); setEditingTask(null); }}
-        task={editingTask}
-        projects={projects}
-        onSave={handleSaveTask}
-        onDelete={handleDeleteTask}
-        lang={lang}
-      />
-
-    </div>
-  );
-};
-
-export default App;
+                 set
