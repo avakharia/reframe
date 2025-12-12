@@ -6,7 +6,7 @@
   <title>Reframe | Wisdom & Growth</title>
   
   <script>
-    // Polyfill process for browser environments to prevent crashes when accessing process.env
+    // Polyfill process for browser environments
     window.process = {
       env: {
         NODE_ENV: 'development'
@@ -21,21 +21,53 @@
       theme: {
         extend: {
           fontSize: {
-            'xs': '0.99rem', // Increased from 0.75rem
-            'sm': '1.05rem', // Increased from 0.875rem
+            'xs': '0.99rem',
+            'sm': '1.05rem',
           },
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          fontFamily: { 
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Playfair Display', 'serif'], // Added for therapeutic feel
+          },
           colors: {
+            // Therapeutic Earth Tones Palette
             brand: {
-              50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9',
-              600: '#0284c7', 700: '#0369a1', 900: '#0c4a6e'
-            }
+              50: '#f4f9f7',  // Soft Mint
+              100: '#e1efe8', // Pale Sage
+              200: '#c3decf', 
+              300: '#95c3ad',
+              400: '#64a187',
+              500: '#438369', // Primary Sage (WCAG AA Compliant on White)
+              600: '#336854',
+              700: '#2a5444',
+              800: '#234438',
+              900: '#1d382f',
+              950: '#0f1f1b',
+            },
+            // Soothing Accents
+            clay: {
+              50: '#fbf7f5',
+              100: '#f5ebe6',
+              500: '#bf5b3b', // Darkened Terracotta for WCAG AA (was #d98c72)
+              600: '#a64d32',
+              700: '#8c3e28',
+            },
+            sand: {
+              50: '#fdfbf7', // Off-white background
+              100: '#f7f3eb',
+              200: '#eee5d6',
+              800: '#5c5446',
+              900: '#4a4336',
+            },
+            // Semantic
+            success: '#4e8d7c', // Muted Teal
+            danger: '#cd6e5f',  // Soft Red/Clay
+            warning: '#b45309', // Dark Amber (was #e0a458) for better text contrast
           }
         }
       }
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <script type="importmap">
 {
   "imports": {
@@ -54,8 +86,30 @@
   }
 }
 </script>
+  <style>
+    /* Custom Scrollbar for soothing feel */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: #cbd5e1;
+      border-radius: 20px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background-color: #334155;
+    }
+    
+    /* Improve focus visibility for accessibility */
+    :focus-visible {
+      outline: 2px solid #438369;
+      outline-offset: 2px;
+    }
+  </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 antialiased transition-colors duration-300">
+<body class="bg-sand-50 dark:bg-brand-950 text-slate-800 dark:text-sand-100 antialiased transition-colors duration-500 ease-in-out">
   <div id="root"></div>
   <script type="module" src="./index.tsx"></script>
 </body>

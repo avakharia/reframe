@@ -59,7 +59,19 @@ import {
   PenTool,
   ChevronUp,
   SlidersHorizontal,
-  ArrowUpDown
+  ArrowUpDown,
+  Leaf,
+  Mountain,
+  Users,
+  BrainCircuit,
+  Shield,
+  Compass,
+  AlertCircle,
+  Check,
+  CheckCircle2,
+  Circle,
+  Edit2,
+  Quote
 } from 'lucide-react';
 
 // --- Translations ---
@@ -79,7 +91,7 @@ const translations = {
     settings: "Settings",
     startHere: "START HERE",
     searchPlaceholder: "What's on your mind...",
-    subtitle: "Edit Your Perspective. Change Your Life.",
+    subtitle: "Blueprint for a Better You",
     subsubtitle: "Your Field Guide to Being Human.",
     footerQuote: "\"Between stimulus and response there is a space...\"",
     about: "About",
@@ -126,7 +138,7 @@ const translations = {
     settings: "Ajustes",
     startHere: "EMPEZAR AQUÍ",
     searchPlaceholder: "Qué tienes en mente...",
-    subtitle: "Edita tu Perspectiva. Cambia tu Vida.",
+    subtitle: "El Diseño de tu Mejor Versión",
     subsubtitle: "Tu Guía de Campo para Ser Humano.",
     footerQuote: "\"Entre el estímulo y la respuesta hay un espacio...\"",
     about: "Acerca de",
@@ -205,7 +217,6 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     e.preventDefault();
     if (!formData.title || !formData.projectId) return;
     
-    // Construct full task object
     const savedTask: Task = {
       id: formData.id || Date.now().toString(),
       title: formData.title,
@@ -236,26 +247,28 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-lg p-6 shadow-2xl border border-slate-100 dark:border-slate-800 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-brand-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-md animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="task-modal-title">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg p-6 shadow-2xl border border-sand-100 dark:border-slate-800 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+          <h3 id="task-modal-title" className="text-xl font-serif font-bold text-slate-900 dark:text-white">
             {task ? t.editTask : t.newTask}
           </h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+          <button onClick={onClose} className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Close Modal">
             <X size={24} />
           </button>
         </div>
 
-        <form onSubmit={handleSave} className="space-y-4">
+        <form onSubmit={handleSave} className="space-y-5">
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Task Title</label>
+            <label htmlFor="task-title" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Task Title</label>
             <input 
+              id="task-title"
               required
+              autoFocus
               value={formData.title || ''}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
-              className="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 bg-white dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
+              className="w-full border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-sand-50 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none transition-all"
               placeholder="What needs to be done?"
             />
           </div>
@@ -263,12 +276,13 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
           {/* Project & Priority Row */}
           <div className="grid grid-cols-2 gap-4">
              <div>
-               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Project</label>
+               <label htmlFor="task-project" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Project</label>
                <select 
+                 id="task-project"
                  required
                  value={formData.projectId || ''}
                  onChange={(e) => setFormData({...formData, projectId: e.target.value})}
-                 className="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 bg-white dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
+                 className="w-full border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-sand-50 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none cursor-pointer"
                >
                  <option value="" disabled>Select Project</option>
                  {projects.map(p => (
@@ -277,11 +291,12 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                </select>
              </div>
              <div>
-               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Priority</label>
+               <label htmlFor="task-priority" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Priority</label>
                <select 
+                 id="task-priority"
                  value={formData.priority || 'Medium'}
                  onChange={(e) => setFormData({...formData, priority: e.target.value as Priority})}
-                 className="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 bg-white dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
+                 className="w-full border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-sand-50 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none cursor-pointer"
                >
                  <option value="High">High</option>
                  <option value="Medium">Medium</option>
@@ -292,55 +307,59 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
+            <label htmlFor="task-desc" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Description</label>
             <textarea 
+              id="task-desc"
               value={formData.description || ''}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 bg-white dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none h-24 resize-none"
+              className="w-full border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-sand-50 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none h-24 resize-none transition-all"
               placeholder="Add details..."
             />
           </div>
 
           {/* Due Date */}
            <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Due Date</label>
+            <label htmlFor="task-date" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Due Date</label>
             <input 
+              id="task-date"
               type="date"
               value={formData.dueDate ? new Date(formData.dueDate).toISOString().split('T')[0] : ''}
               onChange={(e) => setFormData({...formData, dueDate: e.target.valueAsNumber})}
-              className="w-full border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 bg-white dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none"
+              className="w-full border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-sand-50 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none cursor-pointer"
             />
           </div>
 
           {/* Notes Section */}
           <div className="border-t border-slate-100 dark:border-slate-700 pt-4 mt-4">
-             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Notes & Updates</label>
+             <label htmlFor="task-note-input" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Notes & Updates</label>
              <div className="flex gap-2 mb-3">
                <input 
+                 id="task-note-input"
                  value={noteInput}
                  onChange={(e) => setNoteInput(e.target.value)}
-                 className="flex-1 border border-slate-300 dark:border-slate-700 rounded-lg p-2 bg-slate-50 dark:bg-slate-800 dark:text-white text-sm focus:ring-2 focus:ring-brand-500 outline-none"
+                 className="flex-1 border border-slate-300 dark:border-slate-700 rounded-xl p-2 bg-sand-50 dark:bg-slate-800 dark:text-white text-sm focus:ring-2 focus:ring-brand-500 outline-none placeholder:text-slate-500"
                  placeholder="Add a progress note..."
                />
                <button 
                  type="button" 
                  onClick={handleAddNote}
-                 className="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 p-2 rounded-lg"
+                 className="bg-brand-100 dark:bg-slate-700 hover:bg-brand-200 dark:hover:bg-slate-600 text-brand-700 dark:text-slate-300 p-2 rounded-xl transition-colors"
+                 aria-label="Add Note"
                >
                  <Plus size={18} />
                </button>
              </div>
              
-             <div className="space-y-2 max-h-32 overflow-y-auto">
+             <div className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar">
                {formData.notes && formData.notes.length > 0 ? (
                  formData.notes.map(note => (
-                   <div key={note.id} className="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg text-sm border border-slate-100 dark:border-slate-800/50">
+                   <div key={note.id} className="bg-sand-50 dark:bg-slate-800/50 p-3 rounded-lg text-sm border border-sand-100 dark:border-slate-800/50">
                      <p className="text-slate-700 dark:text-slate-300">{note.content}</p>
-                     <p className="text-[10px] text-slate-400 mt-1">{new Date(note.createdAt).toLocaleString()}</p>
+                     <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">{new Date(note.createdAt).toLocaleString()}</p>
                    </div>
                  ))
                ) : (
-                 <p className="text-xs text-slate-400 italic">No notes yet.</p>
+                 <p className="text-xs text-slate-500 dark:text-slate-400 italic">No notes yet.</p>
                )}
              </div>
           </div>
@@ -356,7 +375,8 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                         onClose();
                     }
                 }}
-                className="px-4 py-2.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl font-medium transition-colors"
+                className="px-4 py-2.5 text-danger hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl font-medium transition-colors"
+                aria-label="Delete Task"
               >
                 <Trash2 size={20} />
               </button>
@@ -371,7 +391,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
             </button>
             <button 
               type="submit"
-              className="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium transition-colors flex items-center gap-2"
+              className="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-medium transition-colors flex items-center gap-2 shadow-lg shadow-brand-500/20"
             >
               <Save size={18} /> {t.saveTask}
             </button>
@@ -381,6 +401,131 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
     </div>
   );
 };
+
+// --- Footer Pages ---
+
+const AboutPage = () => (
+  <div className="max-w-4xl mx-auto pb-20 animate-fade-in">
+    <div className="text-center mb-16">
+      <h1 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 dark:text-white mb-6">A Field Guide to Being Human</h1>
+      <p className="text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">
+        Reframe is a cross-generational platform designed to help you become a better version of yourself through project-based self-improvement and AI-driven wisdom.
+      </p>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
+      <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-sand-200 dark:border-slate-700 shadow-sm">
+        <div className="w-12 h-12 bg-brand-100 dark:bg-brand-900/30 rounded-2xl flex items-center justify-center text-brand-600 dark:text-brand-400 mb-6">
+          <Sprout size={24} />
+        </div>
+        <h3 className="text-2xl font-serif font-bold text-slate-900 dark:text-white mb-4">Our Mission</h3>
+        <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+          We believe that wisdom shouldn't be locked away in dusty books or reserved for the end of life. By combining ancient philosophy with modern AI, we provide actionable insights when you need them most. Whether you are 15 or 50, growth is a continuous journey.
+        </p>
+      </div>
+      <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-sand-200 dark:border-slate-700 shadow-sm">
+        <div className="w-12 h-12 bg-clay-100 dark:bg-clay-900/30 rounded-2xl flex items-center justify-center text-clay-600 dark:text-clay-400 mb-6">
+          <BrainCircuit size={24} />
+        </div>
+        <h3 className="text-2xl font-serif font-bold text-slate-900 dark:text-white mb-4">The AI Advantage</h3>
+        <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+          Our platform utilizes advanced Large Language Models (LLMs) to analyze your specific situation and offer "Reframes"—perspective shifts that help you move from stuck to action. It's like having a mentor in your pocket, 24/7.
+        </p>
+      </div>
+    </div>
+
+    <div className="bg-brand-900 rounded-3xl p-12 text-center text-white relative overflow-hidden">
+      <div className="relative z-10">
+        <h2 className="text-3xl font-serif font-bold mb-6">Ready to grow?</h2>
+        <p className="text-brand-100 mb-8 max-w-xl mx-auto">Join thousands of others who are actively designing their lives, one project at a time.</p>
+      </div>
+      <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+         <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
+         </svg>
+      </div>
+    </div>
+  </div>
+);
+
+const TermsPage = () => (
+  <div className="max-w-3xl mx-auto pb-20 animate-fade-in text-slate-700 dark:text-slate-300">
+    <h1 className="text-4xl font-serif font-bold text-slate-900 dark:text-white mb-8">Terms of Use</h1>
+    <p className="mb-8 text-sm text-slate-500">Last Updated: {new Date().toLocaleDateString()}</p>
+
+    <div className="space-y-8">
+      <section>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">1. Acceptance of Terms</h2>
+        <p className="leading-relaxed">
+          By accessing and using Reframe, you agree to comply with and be bound by these Terms of Use. If you do not agree to these terms, please do not use our services.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">2. AI Disclaimer</h2>
+        <p className="leading-relaxed">
+          Reframe utilizes Artificial Intelligence to generate advice, tasks, and wisdom. While we strive for helpfulness, <strong>AI can make mistakes (hallucinations).</strong> Information provided by Reframe should not be considered professional medical, legal, or financial advice. Always consult a qualified professional for serious matters.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">3. User Responsibility</h2>
+        <p className="leading-relaxed">
+          You are responsible for the content you input into the platform. Do not submit sensitive personal information (PII) or confidential data. You must be at least 13 years old to use this service.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">4. Intellectual Property</h2>
+        <p className="leading-relaxed">
+          The core platform design, branding, and code are owned by Reframe. However, the projects and specific data you create within your account belong to you.
+        </p>
+      </section>
+    </div>
+  </div>
+);
+
+const PrivacyPage = () => (
+  <div className="max-w-3xl mx-auto pb-20 animate-fade-in text-slate-700 dark:text-slate-300">
+    <h1 className="text-4xl font-serif font-bold text-slate-900 dark:text-white mb-8">Privacy Policy</h1>
+    <div className="bg-sand-50 dark:bg-slate-800 p-6 rounded-2xl border border-sand-200 dark:border-slate-700 mb-8">
+      <p className="font-medium text-slate-900 dark:text-white flex items-center gap-2">
+        <Shield className="text-success" size={20} />
+        Your privacy is our priority. We do not sell your data.
+      </p>
+    </div>
+
+    <div className="space-y-8">
+      <section>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Data Collection</h2>
+        <p className="leading-relaxed">
+          We collect information you provide directly to us, such as when you create an account, create a project, or submit a journal entry. This includes your name, email address, and the text content of your interactions.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">AI Processing</h2>
+        <p className="leading-relaxed">
+          To provide our services, text you input into the "Wisdom Generator" or "Project Planner" is sent to our AI partners (Google Gemini API). This data is used solely to generate the response and is not used to train public models without your explicit consent.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Data Security</h2>
+        <p className="leading-relaxed">
+          We use industry-standard encryption (TLS/SSL) to protect your data in transit. Your personal journal entries and project details are stored securely via Firebase services.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Contact Us</h2>
+        <p className="leading-relaxed">
+          If you have questions about this policy, please contact us at privacy@reframe.app.
+        </p>
+      </section>
+    </div>
+  </div>
+);
 
 // --- Project Detail Page ---
 
@@ -422,10 +567,11 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
     setDescInput(project.description);
   }, [project.id, project.description]);
 
-  // Check if intake is needed
+  // Check if we need to show intake immediately
   useEffect(() => {
-    if (!project.hasCompletedIntake && !showIntake) {
-       // We can prompt user to start discovery
+    if (!project.hasCompletedIntake && project.tasks.length === 0 && !showIntake) {
+      // Opt-in for intake if it's a new empty project
+      // For now, let's make it a manual click to start "Discovery Mode" to avoid being annoying
     }
   }, [project]);
 
@@ -519,74 +665,70 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
 
   const getPriorityColor = (p?: Priority) => {
     switch (p) {
-      case 'High': return 'bg-red-500';
-      case 'Medium': return 'bg-yellow-500';
-      case 'Low': return 'bg-blue-400';
+      case 'High': return 'bg-clay-500';
+      case 'Medium': return 'bg-warning';
+      case 'Low': return 'bg-brand-400';
       default: return 'bg-slate-300';
     }
   };
 
   const moods: { type: Mood; icon: React.ReactNode; label: string, color: string }[] = [
-    { type: 'Excited', icon: <Zap size={18} />, label: 'Excited', color: 'text-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' },
-    { type: 'Confident', icon: <Trophy size={18} />, label: 'Confident', color: 'text-green-500 bg-green-50 dark:bg-green-900/20' },
-    { type: 'Proud', icon: <StarIcon />, label: 'Proud', color: 'text-purple-500 bg-purple-50 dark:bg-purple-900/20' },
+    { type: 'Excited', icon: <Zap size={18} />, label: 'Excited', color: 'text-warning bg-yellow-50 dark:bg-yellow-900/20' },
+    { type: 'Confident', icon: <Trophy size={18} />, label: 'Confident', color: 'text-success bg-green-50 dark:bg-green-900/20' },
+    { type: 'Proud', icon: <Sparkles size={18} />, label: 'Proud', color: 'text-brand-600 bg-brand-50 dark:bg-brand-900/20' },
     { type: 'Neutral', icon: <Meh size={18} />, label: 'Neutral', color: 'text-slate-500 bg-slate-50 dark:bg-slate-700' },
     { type: 'Anxious', icon: <CloudRain size={18} />, label: 'Anxious', color: 'text-blue-500 bg-blue-50 dark:bg-blue-900/20' },
-    { type: 'Stuck', icon: <Anchor size={18} />, label: 'Stuck', color: 'text-red-500 bg-red-50 dark:bg-red-900/20' },
-    { type: 'Overwhelmed', icon: <Frown size={18} />, label: 'Overwhelmed', color: 'text-orange-500 bg-orange-50 dark:bg-orange-900/20' },
+    { type: 'Stuck', icon: <Anchor size={18} />, label: 'Stuck', color: 'text-danger bg-red-50 dark:bg-red-900/20' },
+    { type: 'Overwhelmed', icon: <Frown size={18} />, label: 'Overwhelmed', color: 'text-clay-600 bg-clay-50 dark:bg-clay-900/20' },
   ];
 
   if (showIntake) {
       return (
           <div className="max-w-2xl mx-auto py-12 animate-fade-in px-4">
-              <button onClick={() => setShowIntake(false)} className="text-slate-400 hover:text-slate-600 mb-6 flex items-center gap-2">
+              <button onClick={() => setShowIntake(false)} className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mb-6 flex items-center gap-2">
                   <ArrowLeft size={18} /> Back to Project
               </button>
               
-              <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-xl border border-slate-100 dark:border-slate-700">
+              <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-xl border border-sand-100 dark:border-slate-700">
                   <div className="flex items-center gap-4 mb-6">
                       <div className="w-12 h-12 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center text-brand-600 dark:text-brand-400">
                           <Sparkles size={24} />
                       </div>
                       <div>
-                          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Discovery Mode</h2>
+                          <h2 className="text-2xl font-serif font-bold text-slate-900 dark:text-white">Discovery Mode</h2>
                           <p className="text-slate-500 dark:text-slate-400 text-sm">Let's clarify your vision to build the perfect plan.</p>
                       </div>
                   </div>
 
                   {loadingIntake ? (
                       <div className="py-12 text-center">
-                          <Loader2 className="w-10 h-10 text-brand-500 animate-spin mx-auto mb-4" />
-                          <p className="text-slate-500">Generating questions...</p>
+                          <Loader2 className="animate-spin mx-auto text-brand-500 mb-4" size={32} />
+                          <p className="text-slate-500">Consulting with the AI Coach...</p>
                       </div>
                   ) : (
                       <div className="space-y-6">
                           {intakeQuestions.map((q, i) => (
                               <div key={i} className="animate-fade-in-up" style={{ animationDelay: `${i * 100}ms` }}>
-                                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                                      {i + 1}. {q}
-                                  </label>
+                                  <label htmlFor={`intake-q-${i}`} className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{q}</label>
                                   <textarea 
+                                      id={`intake-q-${i}`}
                                       value={intakeAnswers[i]}
                                       onChange={(e) => {
-                                          const newAnswers = [...intakeAnswers];
-                                          newAnswers[i] = e.target.value;
-                                          setIntakeAnswers(newAnswers);
+                                          const newA = [...intakeAnswers];
+                                          newA[i] = e.target.value;
+                                          setIntakeAnswers(newA);
                                       }}
-                                      className="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 rounded-xl p-3 focus:ring-2 focus:ring-brand-500 outline-none text-slate-900 dark:text-white"
-                                      rows={2}
-                                      placeholder="Type your answer..."
+                                      className="w-full border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-sand-50 dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none placeholder:text-slate-500"
+                                      placeholder="Your thoughts..."
                                   />
                               </div>
                           ))}
-
                           <button 
                               onClick={submitDiscovery}
                               disabled={processingRefinement}
-                              className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-brand-500/20 transition-all mt-4 flex items-center justify-center gap-2"
+                              className="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-lg transition-all shadow-lg flex justify-center items-center gap-2"
                           >
-                              {processingRefinement ? <Loader2 className="animate-spin" /> : <Sparkles size={18} />}
-                              Generate My Plan
+                             {processingRefinement ? <Loader2 className="animate-spin" /> : <><RocketIcon /> Build My Plan</>}
                           </button>
                       </div>
                   )}
@@ -596,1847 +738,375 @@ const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   }
 
   return (
-    <div className="max-w-6xl mx-auto pb-20 animate-fade-in">
-       <div className="flex justify-end items-center mb-6">
-         {/* Project Switcher Dropdown - Right Aligned */}
-         <div className="relative group min-w-[250px]">
-           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-             <ChevronDown className="text-slate-400" size={16} />
-           </div>
-           <select 
-             value={project.id}
-             onChange={(e) => onSelectProject(e.target.value)}
-             className="appearance-none w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 pl-4 pr-10 py-2 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none cursor-pointer shadow-sm hover:border-brand-300 dark:hover:border-slate-600 transition-colors"
-           >
-             {projects.map(p => (
-               <option key={p.id} value={p.id}>{p.title}</option>
-             ))}
-           </select>
-         </div>
-       </div>
-
-       {/* Header Section */}
-       <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-10 shadow-sm border border-slate-100 dark:border-slate-700 mb-8 relative overflow-hidden group">
-          <div className={`absolute top-0 left-0 w-full h-2 ${
-             project.category === 'Career' ? 'bg-blue-500' : 
-             project.category === 'Health' ? 'bg-green-500' :
-             project.category === 'Spiritual' ? 'bg-purple-500' : 'bg-orange-500'
-          }`}></div>
-          
-          <div className="flex flex-col md:flex-row justify-between gap-8 relative z-10">
-             <div className="flex-1">
-                <div className="flex items-center gap-3 mb-4">
-                   <span className="text-slate-400 dark:text-slate-500 text-sm flex items-center gap-1">
-                     <Calendar size={14} /> Created {new Date(project.createdAt).toLocaleDateString()}
-                   </span>
-                   {!project.hasCompletedIntake && (
-                       <button onClick={startDiscovery} className="text-xs bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 hover:bg-brand-200 transition-colors animate-pulse">
-                           <Sparkles size={12} /> Start Discovery Mode
-                       </button>
-                   )}
-                </div>
-                
-                <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-6 leading-tight">{project.title}</h1>
-                
-                <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-slate-100 dark:border-slate-700 max-w-3xl">
-                   <div className="flex justify-between items-start mb-2">
-                     <h4 className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1">
-                       <Target size={14} /> The Mission (Your "Why")
-                     </h4>
-                     {!isEditingDesc && (
-                       <button onClick={() => setIsEditingDesc(true)} className="text-slate-400 hover:text-brand-500 p-1">
-                         <Edit3 size={14} />
-                       </button>
-                     )}
-                   </div>
-                   {isEditingDesc ? (
-                     <div className="space-y-3">
-                        <textarea 
-                           value={descInput}
-                           onChange={(e) => setDescInput(e.target.value)}
-                           className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm focus:ring-2 focus:ring-brand-500 outline-none"
-                           rows={3}
-                        />
-                        <div className="flex justify-end gap-2">
-                          <button onClick={() => setIsEditingDesc(false)} className="text-xs px-3 py-1 text-slate-500 hover:bg-slate-200 rounded">Cancel</button>
-                          <button onClick={handleSaveDesc} className="text-xs px-3 py-1 bg-brand-600 text-white rounded hover:bg-brand-700">Save</button>
-                        </div>
-                     </div>
-                   ) : (
-                     <p className="text-slate-700 dark:text-slate-300 italic leading-relaxed">
-                       "{project.description}"
-                     </p>
-                   )}
-                </div>
-             </div>
-
-             {/* Right Column: Category + Progress Ring */}
-             <div className="flex flex-col items-center gap-4">
-                 {/* Category Badge - Aligned above progress */}
-                 <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide
-                     ${project.category === 'Career' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 
-                       project.category === 'Health' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
-                       project.category === 'Spiritual' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
-                       'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'}`}>
-                     {project.category}
-                 </span>
-
-                 <div className="flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-6 min-w-[150px]">
-                     <div className="relative w-20 h-20 flex items-center justify-center mb-2">
-                        <svg className="w-full h-full transform -rotate-90">
-                          <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-200 dark:text-slate-700" />
-                          <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="8" fill="transparent" strokeDasharray={226} strokeDashoffset={226 - (226 * progress) / 100} className="text-brand-500 transition-all duration-1000 ease-out" />
-                        </svg>
-                        <span className="absolute text-xl font-bold text-slate-800 dark:text-white">{progress}%</span>
-                     </div>
-                     <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Completed</p>
-                 </div>
-             </div>
+    <div className="animate-fade-in pb-20">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider
+                ${project.category === 'Career' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 
+                  project.category === 'Health' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
+                  project.category === 'Spiritual' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
+                  'bg-clay-100 text-clay-700 dark:bg-clay-900/30 dark:text-clay-300'}`}>
+                {project.category}
+            </span>
+             {!project.hasCompletedIntake && (
+                 <button onClick={startDiscovery} className="flex items-center gap-1 text-xs text-brand-600 dark:text-brand-400 font-bold hover:underline">
+                     <Sparkles size={12} /> Start Discovery Mode
+                 </button>
+             )}
           </div>
-       </div>
+          <h1 className="text-3xl md:text-4xl font-serif font-bold text-slate-900 dark:text-white mb-2">{project.title}</h1>
+        </div>
+        
+        {/* Project Switcher */}
+        <div className="relative group">
+            <button 
+                className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-sand-200 dark:border-slate-700 rounded-xl px-4 py-2 cursor-pointer hover:border-brand-300 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                aria-haspopup="true"
+                aria-expanded="false"
+            >
+                 <Briefcase size={16} className="text-slate-400" />
+                 <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{project.title}</span>
+                 <ChevronDown size={16} className="text-slate-400" />
+            </button>
+            <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-sand-100 dark:border-slate-700 overflow-hidden hidden group-hover:block z-20">
+                {projects.map(p => (
+                    <button 
+                        key={p.id}
+                        onClick={() => onSelectProject(p.id)}
+                        className={`w-full text-left px-4 py-3 hover:bg-sand-50 dark:hover:bg-slate-700 cursor-pointer text-sm ${p.id === project.id ? 'bg-brand-50 dark:bg-brand-900/10 text-brand-700 dark:text-brand-300 font-medium' : 'text-slate-600 dark:text-slate-300'}`}
+                    >
+                        {p.title}
+                    </button>
+                ))}
+            </div>
+        </div>
+      </div>
 
-       {/* Tabs */}
-       <div className="flex gap-8 border-b border-slate-200 dark:border-slate-800 mb-8 px-2 overflow-x-auto">
-         <button 
-           onClick={() => setActiveTab('Action')}
-           className={`pb-4 px-2 text-sm font-bold flex items-center gap-2 transition-all relative whitespace-nowrap ${activeTab === 'Action' ? 'text-brand-600 dark:text-brand-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
-         >
-           <ListTodo size={18} /> Action Plan
-           {activeTab === 'Action' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-brand-500 rounded-t-full"></div>}
-         </button>
-         <button 
-           onClick={() => setActiveTab('Journal')}
-           className={`pb-4 px-2 text-sm font-bold flex items-center gap-2 transition-all relative whitespace-nowrap ${activeTab === 'Journal' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
-         >
-           <Book size={18} /> Journal
-           {activeTab === 'Journal' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 rounded-t-full"></div>}
-         </button>
-         <button 
-           onClick={() => setActiveTab('Coach')}
-           className={`pb-4 px-2 text-sm font-bold flex items-center gap-2 transition-all relative whitespace-nowrap ${activeTab === 'Coach' ? 'text-purple-600 dark:text-purple-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'}`}
-         >
-           <Sparkles size={18} /> AI Coach & Wisdom
-           {activeTab === 'Coach' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-500 rounded-t-full"></div>}
-         </button>
-       </div>
+      {/* Main Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Left Column: Context & Stats */}
+        <div className="space-y-6">
+           <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-sand-200 dark:border-slate-700">
+               <div className="flex justify-between items-center mb-4">
+                   <h3 className="font-serif font-bold text-lg text-slate-800 dark:text-white">Why</h3>
+                   <button onClick={() => setIsEditingDesc(!isEditingDesc)} className="text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-slate-700 p-1 rounded" aria-label="Edit description">
+                       {isEditingDesc ? <Check size={18} onClick={handleSaveDesc} /> : <Edit3 size={18} />}
+                   </button>
+               </div>
+               {isEditingDesc ? (
+                   <textarea 
+                      value={descInput}
+                      onChange={(e) => setDescInput(e.target.value)}
+                      className="w-full text-sm border p-2 rounded-lg dark:bg-slate-900 dark:text-white"
+                      rows={4}
+                      aria-label="Project Description"
+                   />
+               ) : (
+                   <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed italic">
+                       "{project.description}"
+                   </p>
+               )}
+           </div>
 
-       <div className="grid md:grid-cols-3 gap-8">
-          {/* Main Content Area */}
-          <div className="md:col-span-2 space-y-6">
-            
-            {activeTab === 'Action' && (
-              <div className="animate-fade-in">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold text-slate-800 dark:text-white">Tasks</h3>
-                  <button 
-                    onClick={() => onAddTask(project.id)}
-                    className="flex items-center gap-2 text-sm font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/20 dark:text-brand-400 dark:hover:bg-brand-900/40 px-4 py-2 rounded-xl transition-colors"
-                  >
-                    <Plus size={16} /> Add Task
-                  </button>
-                </div>
-                
-                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden divide-y divide-slate-100 dark:divide-slate-700">
-                  {project.tasks.length === 0 ? (
-                    <div className="p-12 text-center">
-                       <p className="text-slate-500 mb-4">No tasks yet. Break it down!</p>
-                       <button onClick={() => onAddTask(project.id)} className="text-brand-600 font-medium hover:underline">Create first task</button>
+           {/* Progress Ring */}
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-sand-200 dark:border-slate-700 flex flex-col items-center justify-center text-center">
+                <div className="relative w-32 h-32 mb-4">
+                    <svg className="w-full h-full" viewBox="0 0 36 36" role="img" aria-label={`Progress: ${progress}%`}>
+                        <path className="text-sand-100 dark:text-slate-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
+                        <path className="text-brand-500 transition-all duration-1000 ease-out" strokeDasharray={`${progress}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3" />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center flex-col">
+                        <span className="text-3xl font-bold text-slate-800 dark:text-white" aria-hidden="true">{progress}%</span>
                     </div>
-                  ) : (
-                    project.tasks.map(task => (
-                      <div key={task.id} className="p-4 flex items-start gap-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group">
-                         <div 
-                           className="mt-1 cursor-pointer"
-                           onClick={() => onToggleTask(project.id, task.id)}
-                         >
-                           {task.isCompleted ? (
-                             <CheckCircle className="text-green-500" size={20} />
-                           ) : (
-                             <div className={`w-5 h-5 rounded-full border-2 hover:border-brand-500 transition-colors ${
-                               task.priority === 'High' ? 'border-red-400' : 
-                               task.priority === 'Low' ? 'border-blue-300' : 'border-slate-300 dark:border-slate-500'
-                             }`}></div>
-                           )}
-                         </div>
-                         <div className="flex-1">
-                            <div className="flex justify-between items-start">
-                              <span 
-                                className={`font-medium text-slate-800 dark:text-slate-200 cursor-pointer hover:text-brand-600 ${task.isCompleted ? 'line-through text-slate-400 dark:text-slate-500' : ''}`}
-                                onClick={() => onEditTask(project.id, task)}
-                              >
-                                {task.title}
-                              </span>
-                              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onClick={() => onEditTask(project.id, task)} className="text-slate-400 hover:text-brand-500">
-                                  <Edit3 size={16} />
-                                </button>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
-                               <span className={`flex items-center gap-1 ${task.priority === 'High' ? 'text-red-500' : task.priority === 'Low' ? 'text-blue-500' : 'text-yellow-600'}`}>
-                                 <span className={`w-1.5 h-1.5 rounded-full ${getPriorityColor(task.priority)}`}></span>
-                                 {task.priority || 'Medium'}
-                               </span>
-                               {task.dueDate && (
-                                 <span className="flex items-center gap-1">
-                                   <Calendar size={12} /> {new Date(task.dueDate).toLocaleDateString()}
-                                 </span>
-                               )}
-                               {task.notes && task.notes.length > 0 && (
-                                 <span className="flex items-center gap-1">
-                                   <MessageCircle size={12} /> {task.notes.length}
-                                 </span>
-                               )}
-                            </div>
-                         </div>
-                      </div>
-                    ))
-                  )}
                 </div>
-              </div>
-            )}
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {completedTasks} / {totalTasks} Tasks
+                </p>
+            </div>
+            
+             <button onClick={onNavigateToToolbox} className="w-full py-3 bg-white dark:bg-slate-800 border border-brand-200 dark:border-slate-700 text-brand-700 dark:text-brand-300 rounded-xl font-medium shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2">
+                 <Wrench size={18} /> Need a Tool?
+             </button>
+        </div>
 
-            {activeTab === 'Journal' && (
-                <div className="animate-fade-in space-y-6">
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
-                        <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                            <PenTool size={18} className="text-blue-500" /> New Entry
-                        </h3>
-                        <div className="mb-4">
-                            <textarea 
-                                value={noteInput}
-                                onChange={(e) => setNoteInput(e.target.value)}
-                                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:ring-2 focus:ring-brand-500 outline-none text-sm min-h-[100px]"
-                                placeholder="Capture your thoughts, progress, or feelings about this project..."
-                            />
-                        </div>
-                        
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                            <div className="flex flex-wrap gap-2">
-                                {moods.map(m => (
-                                    <button
-                                        key={m.type}
-                                        onClick={() => setSelectedMood(m.type)}
-                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                                            selectedMood === m.type 
-                                            ? `${m.color} ring-2 ring-offset-1 ring-offset-white dark:ring-offset-slate-800 ring-current` 
-                                            : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600'
-                                        }`}
-                                    >
-                                        {m.icon} {m.label}
-                                    </button>
-                                ))}
-                            </div>
+        {/* Right Column: Tabs */}
+        <div className="lg:col-span-2">
+           <div className="flex gap-4 mb-6 border-b border-sand-200 dark:border-slate-700 pb-1" role="tablist">
+               {(['Action', 'Coach', 'Journal'] as const).map(tab => (
+                   <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      role="tab"
+                      aria-selected={activeTab === tab}
+                      className={`pb-3 px-2 font-serif font-bold text-lg transition-colors relative
+                          ${activeTab === tab ? 'text-brand-700 dark:text-brand-400' : 'text-slate-400 hover:text-slate-600'}`}
+                   >
+                       {tab === 'Action' && 'Action Plan'}
+                       {tab === 'Coach' && 'AI Coach'}
+                       {tab === 'Journal' && 'Journal'}
+                       {activeTab === tab && (
+                           <div className="absolute bottom-0 left-0 w-full h-0.5 bg-brand-600 dark:bg-brand-400 rounded-t-full"></div>
+                       )}
+                   </button>
+               ))}
+           </div>
+
+           <div className="min-h-[400px]">
+               {activeTab === 'Action' && (
+                   <div className="space-y-3 animate-fade-in" role="tabpanel">
+                        <div className="flex justify-between items-center mb-4">
+                            <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wide">Tasks</h4>
                             <button 
-                                onClick={handleAddProjectNote}
-                                disabled={!noteInput.trim()}
-                                className="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2 rounded-xl font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              onClick={() => onAddTask(project.id)}
+                              className="text-xs bg-brand-600 text-white px-3 py-1.5 rounded-lg flex items-center gap-1 hover:bg-brand-700 transition-colors"
                             >
-                                Add Note
+                                <Plus size={14} /> New Task
                             </button>
                         </div>
-                    </div>
-
-                    <div className="space-y-4">
-                        <h3 className="font-bold text-slate-800 dark:text-white text-sm uppercase tracking-wide pl-2">History</h3>
-                        {!project.notes || project.notes.length === 0 ? (
-                            <div className="text-center py-10 text-slate-400 italic bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-                                No notes yet. Start journaling your journey!
-                            </div>
-                        ) : (
-                            project.notes.map(note => {
-                                const moodObj = moods.find(m => m.type === note.mood) || moods[3]; // Default neutral
-                                return (
-                                    <div key={note.id} className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
-                                        <div className="flex justify-between items-start mb-3">
-                                            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${moodObj.color}`}>
-                                                {moodObj.icon} {note.mood}
-                                            </div>
-                                            <span className="text-xs text-slate-400 flex items-center gap-1">
-                                                <Clock size={12} />
-                                                {new Date(note.createdAt).toLocaleString()}
-                                            </span>
-                                        </div>
-                                        <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
-                                            {note.content}
-                                        </p>
-                                    </div>
-                                );
-                            })
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {activeTab === 'Coach' && (
-              <div className="animate-fade-in space-y-6">
-                 <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                    <h3 className="text-xl font-bold mb-2 flex items-center gap-2"><Sparkles className="text-yellow-300" /> Project Coach</h3>
-                    <p className="text-purple-100 mb-6 text-sm leading-relaxed max-w-lg">
-                      Need a perspective shift? Ask the AI Coach to analyze your project description and tasks to provide specific wisdom.
-                    </p>
-                    <button 
-                      onClick={handleGetCoaching}
-                      disabled={loadingWisdom}
-                      className="bg-white text-purple-700 px-4 py-2 rounded-xl font-bold text-sm hover:bg-purple-50 transition-colors shadow-md flex items-center gap-2"
-                    >
-                      {loadingWisdom ? <Loader2 className="animate-spin w-4 h-4" /> : <Lightbulb size={16} />}
-                      {coachWisdom ? 'Get New Perspective' : 'Get Insight'}
-                    </button>
-                 </div>
-
-                 {coachWisdom && (
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-slate-700 animate-fade-in-up">
-                      <div className="mb-6">
-                        <p className="text-xl font-serif italic text-slate-800 dark:text-slate-100 mb-2">"{coachWisdom.quote}"</p>
-                        <p className="text-sm font-bold text-slate-500 uppercase">— {coachWisdom.author}</p>
-                      </div>
-                      <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-5 mb-6">
-                        <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">Why this matters now</h4>
-                        <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-sm">
-                          {coachWisdom.context}
-                        </p>
-                      </div>
-                      <div className="flex items-start gap-3 bg-green-50 dark:bg-green-900/20 p-4 rounded-xl">
-                         <CheckCircle className="text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" size={20} />
-                         <div>
-                           <h4 className="text-sm font-bold text-green-800 dark:text-green-300 mb-1">Coach's Challenge</h4>
-                           <p className="text-sm text-green-700 dark:text-green-400">{coachWisdom.actionableStep}</p>
-                         </div>
-                      </div>
-                    </div>
-                 )}
-                 
-                 {!coachWisdom && !loadingWisdom && (
-                   <div className="text-center py-12 text-slate-400">
-                     <p>Click "Get Insight" to unlock specific wisdom for this project.</p>
-                   </div>
-                 )}
-              </div>
-            )}
-          </div>
-
-          {/* Sidebar Area */}
-          <div className="space-y-6">
-             <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
-               <h4 className="font-bold text-slate-800 dark:text-white mb-4 text-sm uppercase">Quick Stats</h4>
-               <div className="space-y-4">
-                 <div className="flex justify-between items-center text-sm">
-                   <span className="text-slate-500">Completed</span>
-                   <span className="font-bold text-green-600">{completedTasks}</span>
-                 </div>
-                 <div className="flex justify-between items-center text-sm">
-                   <span className="text-slate-500">Remaining</span>
-                   <span className="font-bold text-slate-800 dark:text-white">{totalTasks - completedTasks}</span>
-                 </div>
-                 {/* Journal Stats */}
-                  <div className="flex justify-between items-center text-sm border-t border-slate-100 dark:border-slate-700 pt-3">
-                   <span className="text-slate-500">Journal Entries</span>
-                   <span className="font-bold text-blue-600">{project.notes ? project.notes.length : 0}</span>
-                 </div>
-               </div>
-             </div>
-
-             <div className="bg-orange-50 dark:bg-orange-900/20 rounded-2xl p-6 border border-orange-100 dark:border-orange-800/30">
-                <h4 className="font-bold text-orange-800 dark:text-orange-300 mb-2 text-sm uppercase flex items-center gap-2">
-                  <Wrench size={16} /> Stuck?
-                </h4>
-                <p className="text-xs text-orange-700 dark:text-orange-400 mb-4 leading-relaxed">
-                  If you're procrastinating on this project, try the <strong>"5-Minute Rule"</strong>. Commit to working on it for just 5 minutes. Usually, that's enough to break the inertia.
-                </p>
-                <button 
-                  onClick={onNavigateToToolbox}
-                  className="text-xs font-bold text-orange-600 hover:text-orange-800 dark:hover:text-orange-300 underline"
-                >
-                  Read more in Toolbox
-                </button>
-             </div>
-          </div>
-       </div>
-    </div>
-  );
-};
-
-interface AllTasksViewProps {
-  projects: Project[];
-  onToggleTask: (pid: string, tid: string) => void;
-  onEditTask: (pid: string, task: Task) => void;
-  lang: Language;
-}
-
-type GroupByOption = 'Project' | 'Date' | 'Priority' | 'None';
-type SortByOption = 'DueDate' | 'Priority' | 'Title';
-
-const AllTasksView: React.FC<AllTasksViewProps> = ({ projects, onToggleTask, onEditTask, lang }) => {
-  const [filter, setFilter] = useState<'All' | 'Active' | 'Completed'>('All');
-  const [groupBy, setGroupBy] = useState<GroupByOption>('Project');
-  const [sortBy, setSortBy] = useState<SortByOption>('DueDate');
-  const [projectFilter, setProjectFilter] = useState<string>('All');
-  
-  const t = translations[lang];
-
-  // Flatten tasks with project metadata
-  const allTasks = projects.flatMap(p => p.tasks.map(t => ({ 
-    ...t, 
-    projectId: p.id, 
-    projectTitle: p.title,
-    projectCategory: p.category
-  })));
-  
-  // 1. Filter
-  let filteredTasks = allTasks.filter(task => {
-    // Status Filter
-    if (filter === 'Active' && task.isCompleted) return false;
-    if (filter === 'Completed' && !task.isCompleted) return false;
-    // Project Filter
-    if (projectFilter !== 'All' && task.projectId !== projectFilter) return false;
-    return true;
-  });
-
-  // 2. Sort
-  filteredTasks.sort((a, b) => {
-    if (sortBy === 'DueDate') {
-      // Tasks with due dates come first, sorted ascending
-      if (a.dueDate && b.dueDate) return a.dueDate - b.dueDate;
-      if (a.dueDate) return -1;
-      if (b.dueDate) return 1;
-      return 0;
-    } else if (sortBy === 'Priority') {
-       const pWeight = { 'High': 3, 'Medium': 2, 'Low': 1 };
-       const wa = pWeight[a.priority || 'Medium'];
-       const wb = pWeight[b.priority || 'Medium'];
-       return wb - wa;
-    } else {
-       return a.title.localeCompare(b.title);
-    }
-  });
-
-  // 3. Group
-  const groupedTasks: { [key: string]: typeof filteredTasks } = {};
-  
-  if (groupBy === 'Project') {
-    filteredTasks.forEach(task => {
-      const key = task.projectTitle;
-      if (!groupedTasks[key]) groupedTasks[key] = [];
-      groupedTasks[key].push(task);
-    });
-  } else if (groupBy === 'Priority') {
-     filteredTasks.forEach(task => {
-      const key = task.priority || 'Medium';
-      if (!groupedTasks[key]) groupedTasks[key] = [];
-      groupedTasks[key].push(task);
-    });
-  } else if (groupBy === 'Date') {
-    filteredTasks.forEach(task => {
-      let key = 'No Due Date';
-      if (task.dueDate) {
-        const date = new Date(task.dueDate);
-        const today = new Date();
-        today.setHours(0,0,0,0);
-        
-        const diffTime = date.getTime() - today.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-        
-        if (diffDays < 0) key = 'Overdue';
-        else if (diffDays === 0) key = 'Today';
-        else if (diffDays === 1) key = 'Tomorrow';
-        else if (diffDays <= 7) key = 'This Week';
-        else key = 'Later';
-      }
-      if (!groupedTasks[key]) groupedTasks[key] = [];
-      groupedTasks[key].push(task);
-    });
-  } else {
-    groupedTasks['All Tasks'] = filteredTasks;
-  }
-
-  // Helper for priority color
-  const getPriorityColor = (p?: Priority) => {
-    switch (p) {
-      case 'High': return 'bg-red-500';
-      case 'Medium': return 'bg-yellow-500';
-      case 'Low': return 'bg-blue-400';
-      default: return 'bg-slate-300';
-    }
-  };
-
-  return (
-    <div className="animate-fade-in space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t.tasks}</h2>
-        
-        {/* Filters Bar */}
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-           {/* Status Toggle */}
-           <div className="flex bg-white dark:bg-slate-800 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
-             {['All', 'Active', 'Completed'].map(f => (
-               <button
-                 key={f}
-                 onClick={() => setFilter(f as any)}
-                 className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                   filter === f 
-                   ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300' 
-                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-                 }`}
-               >
-                 {f}
-               </button>
-             ))}
-           </div>
-           
-           {/* Controls Group */}
-           <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-               {/* Group By */}
-               <div className="relative group">
-                 <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                   <SlidersHorizontal size={14} className="text-slate-400" />
-                 </div>
-                 <select 
-                   value={groupBy} 
-                   onChange={(e) => setGroupBy(e.target.value as GroupByOption)}
-                   className="pl-8 pr-8 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-brand-500 appearance-none cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50"
-                 >
-                   <option value="Project">Group: Project</option>
-                   <option value="Date">Group: Date</option>
-                   <option value="Priority">Group: Priority</option>
-                   <option value="None">Group: None</option>
-                 </select>
-               </div>
-
-               {/* Sort By */}
-               <div className="relative group">
-                 <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                   <ArrowUpDown size={14} className="text-slate-400" />
-                 </div>
-                 <select 
-                   value={sortBy} 
-                   onChange={(e) => setSortBy(e.target.value as SortByOption)}
-                   className="pl-8 pr-8 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-brand-500 appearance-none cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50"
-                 >
-                   <option value="DueDate">Sort: Due Date</option>
-                   <option value="Priority">Sort: Priority</option>
-                   <option value="Title">Sort: Title</option>
-                 </select>
-               </div>
-
-                {/* Filter Project */}
-               <div className="relative group">
-                 <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                   <Filter size={14} className="text-slate-400" />
-                 </div>
-                 <select 
-                   value={projectFilter} 
-                   onChange={(e) => setProjectFilter(e.target.value)}
-                   className="pl-8 pr-8 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-brand-500 appearance-none cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 max-w-[150px] truncate"
-                 >
-                   <option value="All">Filter: All Projects</option>
-                   {projects.map(p => (
-                     <option key={p.id} value={p.id}>{p.title}</option>
-                   ))}
-                 </select>
-               </div>
-           </div>
-        </div>
-      </div>
-
-      <div className="space-y-6">
-        {Object.keys(groupedTasks).length === 0 ? (
-          <div className="p-12 text-center bg-white dark:bg-slate-800 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
-            <p className="text-slate-500 dark:text-slate-400 italic">No tasks found matching filters.</p>
-          </div>
-        ) : (
-          Object.entries(groupedTasks).map(([groupTitle, tasks]) => (
-            <div key={groupTitle} className="animate-fade-in">
-              {groupBy !== 'None' && (
-                <div className="flex items-center gap-2 mb-3 px-1">
-                   {groupBy === 'Project' && <Briefcase size={16} className="text-brand-500" />}
-                   {groupBy === 'Date' && <Calendar size={16} className="text-brand-500" />}
-                   {groupBy === 'Priority' && <Target size={16} className="text-brand-500" />}
-                   <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
-                     {groupTitle} <span className="text-slate-400 font-normal ml-1">({tasks.length})</span>
-                   </h3>
-                </div>
-              )}
-              
-              <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-700 overflow-hidden">
-                {tasks.map(task => (
-                  <div 
-                    key={`${task.projectId}-${task.id}`} 
-                    className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group flex items-start gap-4"
-                  >
-                     {/* Radio Button Area - Toggle */}
-                     <div 
-                       className="pt-1 cursor-pointer"
-                       onClick={(e) => { e.stopPropagation(); onToggleTask(task.projectId, task.id); }}
-                     >
-                       {task.isCompleted ? (
-                         <CheckCircle className="text-green-500" size={20} />
+                       {project.tasks.length === 0 ? (
+                           <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
+                               <p className="text-slate-400 mb-2">No tasks yet.</p>
+                               <button onClick={() => onAddTask(project.id)} className="text-brand-600 font-medium hover:underline">Create your first task</button>
+                           </div>
                        ) : (
-                         <div className={`w-5 h-5 rounded-full border-2 ${
-                           task.priority === 'High' ? 'border-red-400' : 
-                           task.priority === 'Low' ? 'border-blue-300' : 'border-slate-300 dark:border-slate-500'
-                         } hover:border-brand-500 transition-colors`}></div>
+                           project.tasks.map(task => (
+                               <div 
+                                 key={task.id} 
+                                 className="group bg-white dark:bg-slate-800 p-4 rounded-xl border border-sand-100 dark:border-slate-700 hover:border-brand-200 dark:hover:border-slate-600 shadow-sm transition-all flex items-start gap-3"
+                               >
+                                    <button 
+                                      onClick={() => onToggleTask(project.id, task.id)}
+                                      aria-label={task.isCompleted ? "Mark incomplete" : "Mark complete"}
+                                      className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
+                                          ${task.isCompleted ? 'bg-success border-success' : 'border-slate-300 dark:border-slate-600 hover:border-brand-500'}`}
+                                    >
+                                        {task.isCompleted && <Check size={12} className="text-white" />}
+                                    </button>
+                                    <div className="flex-1">
+                                         <div className="flex justify-between items-start">
+                                            <button 
+                                              onClick={() => onEditTask(project.id, task)}
+                                              className={`font-medium cursor-pointer text-left hover:text-brand-600 transition-colors ${task.isCompleted ? 'text-slate-400 line-through' : 'text-slate-800 dark:text-slate-200'}`}
+                                            >
+                                                {task.title}
+                                            </button>
+                                            <div className="flex items-center gap-2">
+                                                 <button 
+                                                    onClick={() => onUpdatePriority(project.id, task.id, task.priority === 'High' ? 'Low' : task.priority === 'Low' ? 'Medium' : 'High')}
+                                                    className={`w-2.5 h-2.5 rounded-full cursor-pointer ${getPriorityColor(task.priority)}`} 
+                                                    title={`Priority: ${task.priority}`}
+                                                    aria-label={`Change priority from ${task.priority}`}
+                                                 />
+                                                 <button onClick={() => onEditTask(project.id, task)} aria-label="Edit task" className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-brand-500 transition-opacity">
+                                                     <Edit2 size={14} />
+                                                 </button>
+                                            </div>
+                                         </div>
+                                         {task.description && <p className="text-xs text-slate-500 mt-1 line-clamp-1">{task.description}</p>}
+                                         {task.dueDate && (
+                                             <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-2">
+                                                 <Calendar size={10} /> {new Date(task.dueDate).toLocaleDateString()}
+                                             </div>
+                                         )}
+                                    </div>
+                               </div>
+                           ))
                        )}
-                     </div>
-                     
-                     <div className="flex-1 min-w-0">
-                       <div className="flex justify-between items-start">
-                          <p 
-                            className={`font-medium truncate cursor-pointer hover:text-brand-600 dark:hover:text-brand-400 transition-colors ${task.isCompleted ? 'text-slate-400 line-through' : 'text-slate-800 dark:text-slate-200'}`}
-                            onClick={(e) => { e.stopPropagation(); onEditTask(task.projectId, task); }}
-                          >
-                            {task.title}
-                          </p>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); onEditTask(task.projectId, task); }}
-                            className="text-slate-300 hover:text-brand-600 dark:text-slate-600 dark:hover:text-brand-400 opacity-0 group-hover:opacity-100 transition-opacity p-1"
-                          >
-                            <Edit3 size={16} />
-                          </button>
-                       </div>
-                       <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
-                          {groupBy !== 'Project' && (
-                             <span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-700/50 px-2 py-0.5 rounded text-[10px] uppercase tracking-wide">
-                               {task.projectTitle}
-                             </span>
-                          )}
-                          
-                          {groupBy !== 'Priority' && task.priority && (
-                            <span className={`${
-                              task.priority === 'High' ? 'text-red-500' : 
-                              task.priority === 'Low' ? 'text-blue-500' : 'text-yellow-600'
-                            }`}>
-                              {task.priority}
-                            </span>
-                          )}
-                          
-                          {task.dueDate && (
-                            <span className={`flex items-center gap-1 ${
-                               new Date(task.dueDate) < new Date() && !task.isCompleted ? 'text-red-500 font-medium' : ''
-                            }`}>
-                              <Calendar size={12} />
-                              {new Date(task.dueDate).toLocaleDateString()}
-                            </span>
-                          )}
-                          
-                          {task.notes && task.notes.length > 0 && (
-                            <span className="flex items-center gap-1">
-                              <MessageCircle size={12} /> {task.notes.length}
-                            </span>
-                          )}
-                       </div>
-                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
-};
-
-
-interface NewProjectModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onAdd: (project: Project) => void;
-}
-
-const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClose, onAdd }) => {
-  const [title, setTitle] = useState('');
-  const [desc, setDesc] = useState('');
-  const [cat, setCat] = useState<Project['category']>('Personal');
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      setTitle('');
-      setDesc('');
-      setCat('Personal');
-      setLoading(false);
-    }
-  }, [isOpen]);
-
-  if (!isOpen) return null;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    const suggestedTasks = await suggestProjectTasks(title, desc);
-    
-    const newProject: Project = {
-      id: Date.now().toString(),
-      title,
-      description: desc,
-      category: cat,
-      progress: 0,
-      tasks: suggestedTasks.map((t, i) => ({
-        id: `new-${i}`,
-        title: t,
-        isCompleted: false,
-        priority: 'Medium' // Default priority
-      })),
-      notes: [], // Initialize notes array
-      createdAt: Date.now()
-    };
-
-    onAdd(newProject);
-    setLoading(false);
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl border border-slate-100 dark:border-slate-700 transition-colors">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold text-slate-800 dark:text-white">New Project</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
-            <X size={24} />
-          </button>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Project Title</label>
-            <input 
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none bg-white dark:bg-slate-700 dark:text-white"
-              placeholder="e.g., Become a Morning Person"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Purpose/Goal</label>
-            <textarea 
-              required
-              value={desc}
-              onChange={(e) => setDesc(e.target.value)}
-              className="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none h-24 resize-none bg-white dark:bg-slate-700 dark:text-white"
-              placeholder="Why do you want to do this?"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Category</label>
-            <select 
-              value={cat}
-              onChange={(e) => setCat(e.target.value as any)}
-              className="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2 bg-white dark:bg-slate-700 dark:text-white"
-            >
-              <option value="Personal">Personal</option>
-              <option value="Career">Career</option>
-              <option value="Health">Health</option>
-              <option value="Spiritual">Spiritual</option>
-            </select>
-          </div>
-          
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-lg mt-4 flex justify-center items-center gap-2 transition-colors"
-          >
-            {loading ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <>
-                <Plus size={20} />
-                Create Project
-              </>
-            )}
-          </button>
-          {loading && <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-2">AI is generating a starting plan...</p>}
-        </form>
-      </div>
-    </div>
-  );
-};
-
-// --- Login Modal ---
-
-interface LoginModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onLoginSuccess: (user: User) => void;
-}
-
-const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess }) => {
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Form State
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [photoName, setPhotoName] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      setError(null);
-      setEmail('');
-      setPassword('');
-      setConfirmPassword('');
-      setFullName('');
-      setPhotoName(null);
-      setIsLoading(false);
-    }
-  }, [isOpen]);
-
-  if (!isOpen) return null;
-
-  const handleGoogleLogin = async () => {
-    try {
-      setError(null);
-      const result = await signInWithSocial('google');
-      if (result.user) {
-          // Type assertion to fix type mismatch if partial user returned
-          onLoginSuccess(result.user as User);
-      }
-      onClose();
-    } catch (err: any) {
-      setError(err.message || 'Login failed.');
-    }
-  };
-
-  const handleEmailAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setIsLoading(true);
-
-    try {
-      if (isSignUp) {
-        if (password !== confirmPassword) {
-          throw new Error("Passwords do not match.");
-        }
-        if (password.length < 6) {
-           throw new Error("Password must be at least 6 characters.");
-        }
-        
-        const result = await signUpWithEmail(email, password, fullName);
-        if (result.user) onLoginSuccess(result.user as User);
-      } else {
-        const result = await loginWithEmail(email, password);
-        if (result.user) onLoginSuccess(result.user as User);
-      }
-      onClose();
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setPhotoName(e.target.files[0].name);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-sm p-8 shadow-2xl border border-slate-100 dark:border-slate-800">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
-            {isSignUp ? 'Create Account' : 'Welcome Back'}
-          </h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
-            <X size={24} />
-          </button>
-        </div>
-        
-        <form onSubmit={handleEmailAuth} className="space-y-4">
-          
-          {isSignUp && (
-            <>
-              <div className="flex justify-center mb-4">
-                <label className="cursor-pointer group relative">
-                  <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-600 group-hover:border-brand-500 transition-colors">
-                     {photoName ? (
-                       <span className="text-xs text-center text-brand-600 px-2 truncate w-full">{photoName}</span>
-                     ) : (
-                       <Upload size={24} className="text-slate-400 group-hover:text-brand-500" />
-                     )}
-                  </div>
-                  <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-                  <span className="text-[10px] text-center block mt-1 text-slate-400">Add Photo</span>
-                </label>
-              </div>
-
-              <div className="relative">
-                <UserIcon className="absolute left-3 top-3 text-slate-400" size={18} />
-                <input
-                  type="text"
-                  placeholder="Full Name"
-                  required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 dark:text-white text-sm"
-                />
-              </div>
-            </>
-          )}
-
-          <div className="relative">
-            <Mail className="absolute left-3 top-3 text-slate-400" size={18} />
-            <input
-              type="email"
-              placeholder="Email Address"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 dark:text-white text-sm"
-            />
-          </div>
-
-          <div className="relative">
-            <Lock className="absolute left-3 top-3 text-slate-400" size={18} />
-            <input
-              type="password"
-              placeholder="Password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 dark:text-white text-sm"
-            />
-          </div>
-
-          {isSignUp && (
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 text-slate-400" size={18} />
-              <input
-                type="password"
-                placeholder="Repeat Password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 dark:text-white text-sm"
-              />
-            </div>
-          )}
-
-          {error && (
-            <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-500 text-xs rounded-lg text-center">
-              {error}
-            </div>
-          )}
-
-          <button 
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-xl transition-colors shadow-sm disabled:opacity-70 flex justify-center"
-          >
-            {isLoading ? <Loader2 className="animate-spin h-5 w-5" /> : (isSignUp ? 'Create Account' : 'Sign In')}
-          </button>
-        </form>
-
-        <div className="flex items-center gap-4 my-6">
-          <div className="h-px bg-slate-200 dark:bg-slate-700 flex-1"></div>
-          <span className="text-xs text-slate-400">OR</span>
-          <div className="h-px bg-slate-200 dark:bg-slate-700 flex-1"></div>
-        </div>
-
-        <button 
-          onClick={handleGoogleLogin}
-          type="button"
-          className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-white py-3 rounded-xl font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm text-sm"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.26c.46-1.4 1.83-2.43 3.41-2.43z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-          Continue with Google
-        </button>
-
-        <div className="mt-6 text-center">
-          <button 
-            type="button"
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="text-sm text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 font-medium"
-          >
-            {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-
-const NavButton = ({ active, onClick, icon, label, onAdd }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string, onAdd?: () => void }) => (
-  <div 
-    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-colors duration-200 group
-      ${active ? 'bg-brand-50 dark:bg-slate-800 text-brand-700 dark:text-brand-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200'}
-    `}
-  >
-    <button onClick={onClick} className="flex items-center gap-3 flex-1 text-sm font-medium text-left">
-      <span className={active ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400 dark:text-slate-500'}>{icon}</span>
-      {label}
-    </button>
-    
-    {onAdd && (
-      <button 
-        onClick={(e) => { e.stopPropagation(); onAdd(); }}
-        className={`p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity
-           ${active ? 'hover:bg-brand-100 dark:hover:bg-slate-700 text-brand-600' : 'hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-brand-500'}
-        `}
-      >
-        <Plus size={16} />
-      </button>
-    )}
-  </div>
-);
-
-const SparkleIcon = () => (
-  <svg className="w-6 h-6 text-yellow-300 mb-3" fill="currentColor" viewBox="0 0 20 20">
-    <path d="M10 2l2.5 5.5L18 10l-5.5 2.5L10 18l-2.5-5.5L2 10l5.5-2.5L10 2z" />
-  </svg>
-);
-
-const StarIcon = () => (
-  <svg className="w-[18px] h-[18px]" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-  </svg>
-);
-
-const ThemeToggle = ({ darkMode, toggleTheme }: { darkMode: boolean; toggleTheme: () => void }) => (
-  <button 
-    onClick={toggleTheme}
-    className="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
-    aria-label="Toggle Dark Mode"
-  >
-    {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-  </button>
-);
-
-const LanguageToggle = ({ lang, toggleLang }: { lang: Language; toggleLang: () => void }) => (
-  <button 
-    onClick={toggleLang}
-    className="flex items-center gap-1 px-2 py-1 rounded-md text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors text-xs font-bold"
-    aria-label="Toggle Language"
-  >
-    {lang === 'en' ? 'ES' : 'EN'}
-  </button>
-);
-
-// --- Dedicated Product Pages ---
-
-const RootsPage: React.FC<{ onBack: () => void, lang: Language }> = ({ onBack, lang }) => {
-  const t = translations[lang];
-  return (
-    <div className="animate-fade-in pt-10 pb-20 px-4 max-w-4xl mx-auto">
-      <button onClick={onBack} className="flex items-center text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 mb-8 transition-colors">
-        <ArrowLeft size={20} className="mr-2" /> {t.backHome}
-      </button>
-      
-      <div className="text-center mb-16">
-        <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-3xl flex items-center justify-center mx-auto mb-6">
-          <Sprout size={40} />
-        </div>
-        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">{t.roots}</h1>
-        <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-          {t.rootsDesc} {lang === 'en' ? 'Understanding the fundamental truths that govern our reality.' : 'Entendiendo las verdades fundamentales que gobiernan nuestra realidad.'}
-        </p>
-      </div>
-
-      <div className="grid gap-12">
-        <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col md:flex-row gap-8 items-center">
-          <div className="flex-1">
-            <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">{lang === 'en' ? 'Control vs. Chaos' : 'Control vs. Caos'}</h3>
-            <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-              {lang === 'en' 
-                ? 'Discover what you can control and what you cannot. The root of suffering often lies in trying to control the uncontrollable.' 
-                : 'Descubre qué puedes controlar y qué no. La raíz del sufrimiento a menudo reside en tratar de controlar lo incontrolable.'}
-            </p>
-            <div className="flex flex-wrap gap-2">
-               {['Stoicism', 'Acceptance', 'Power'].map(tag => (
-                 <span key={tag} className="px-3 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-full text-xs font-medium">#{tag}</span>
-               ))}
-            </div>
-          </div>
-          <div className="w-full md:w-1/3 h-48 bg-green-50 dark:bg-green-900/10 rounded-2xl flex items-center justify-center">
-             <BookOpen size={48} className="text-green-300 dark:text-green-700" />
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col md:flex-row-reverse gap-8 items-center">
-          <div className="flex-1">
-            <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">{lang === 'en' ? 'Impermanence' : 'Impermanencia'}</h3>
-            <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-               {lang === 'en' 
-                ? 'Everything changes. Embracing this truth allows us to let go of fear and cherish the present moment.'
-                : 'Todo cambia. Abrazar esta verdad nos permite soltar el miedo y apreciar el momento presente.'}
-            </p>
-             <div className="flex flex-wrap gap-2">
-               {['Time', 'Change', 'Present'].map(tag => (
-                 <span key={tag} className="px-3 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-full text-xs font-medium">#{tag}</span>
-               ))}
-            </div>
-          </div>
-          <div className="w-full md:w-1/3 h-48 bg-green-50 dark:bg-green-900/10 rounded-2xl flex items-center justify-center">
-             <Clock size={48} className="text-green-300 dark:text-green-700" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const BranchesPage: React.FC<{ onBack: () => void, lang: Language }> = ({ onBack, lang }) => {
-  const t = translations[lang];
-  return (
-     <div className="animate-fade-in pt-10 pb-20 px-4 max-w-4xl mx-auto">
-      <button onClick={onBack} className="flex items-center text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 mb-8 transition-colors">
-        <ArrowLeft size={20} className="mr-2" /> {t.backHome}
-      </button>
-      
-      <div className="text-center mb-16">
-        <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-3xl flex items-center justify-center mx-auto mb-6">
-          <GitFork size={40} />
-        </div>
-        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">{t.branches}</h1>
-        <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-          {t.branchesDesc} {lang === 'en' ? 'Applying wisdom to the various aspects of our daily lives.' : 'Aplicando sabiduría a los varios aspectos de nuestra vida diaria.'}
-        </p>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6">
-         {[
-           { icon: <Briefcase />, title: lang === 'en' ? 'Career' : 'Carrera', desc: lang === 'en' ? 'Navigating ambition, burnout, and purpose.' : 'Navegando ambición, agotamiento y propósito.' },
-           { icon: <Heart />, title: lang === 'en' ? 'Relationships' : 'Relaciones', desc: lang === 'en' ? 'Communication, boundaries, and empathy.' : 'Comunicación, límites y empatía.' },
-           { icon: <DollarSign />, title: lang === 'en' ? 'Finance' : 'Finanzas', desc: lang === 'en' ? 'Money as a tool, not a master.' : 'El dinero como herramienta, no como amo.' },
-           { icon: <Globe />, title: lang === 'en' ? 'Community' : 'Comunidad', desc: lang === 'en' ? 'Finding your place and contributing.' : 'Encontrando tu lugar y contribuyendo.' }
-         ].map((item, i) => (
-           <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all">
-              <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center mb-4">
-                {item.icon}
-              </div>
-              <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{item.title}</h3>
-              <p className="text-slate-600 dark:text-slate-400">{item.desc}</p>
-           </div>
-         ))}
-      </div>
-    </div>
-  );
-};
-
-const ToolboxPage: React.FC<{ onBack: () => void, lang: Language }> = ({ onBack, lang }) => {
-  const t = translations[lang];
-  return (
-    <div className="animate-fade-in pt-10 pb-20 px-4 max-w-4xl mx-auto">
-      <button onClick={onBack} className="flex items-center text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 mb-8 transition-colors">
-        <ArrowLeft size={20} className="mr-2" /> {t.backHome}
-      </button>
-      
-      <div className="text-center mb-16">
-        <div className="w-20 h-20 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-3xl flex items-center justify-center mx-auto mb-6">
-          <Wrench size={40} />
-        </div>
-        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">{t.toolbox}</h1>
-        <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-          {t.toolboxDesc} {lang === 'en' ? 'Specific mental models and techniques to use in the moment.' : 'Modelos mentales específicos y técnicas para usar en el momento.'}
-        </p>
-      </div>
-
-       <div className="space-y-6">
-         {[
-           { title: lang === 'en' ? 'The "Pause" Button' : 'El Botón de "Pausa"', desc: lang === 'en' ? 'Stop. Take a breath. Observe. Proceed. A simple heuristic to break reactivity.' : 'Para. Respira. Observa. Procede. Una heurística simple para romper la reactividad.' },
-           { title: lang === 'en' ? 'The "I" Statement' : 'La Declaración "Yo"', desc: lang === 'en' ? 'Shift conflict by owning your feelings instead of accusing others.' : 'Cambia el conflicto adueñándote de tus sentimientos en lugar de acusar a otros.' },
-           { title: lang === 'en' ? 'Journaling' : 'Diario', desc: lang === 'en' ? 'Getting thoughts out of your head and onto paper to gain objectivity.' : 'Sacar pensamientos de tu cabeza al papel para ganar objetividad.' }
-         ].map((tool, i) => (
-           <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex gap-4 items-start">
-              <div className="mt-1 text-orange-500 bg-orange-50 dark:bg-orange-900/20 p-2 rounded-lg">
-                <Wrench size={20} />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">{tool.title}</h3>
-                <p className="text-slate-600 dark:text-slate-400">{tool.desc}</p>
-                <button className="mt-3 text-sm font-semibold text-brand-600 dark:text-brand-400 hover:underline">{t.tryTool} &rarr;</button>
-              </div>
-           </div>
-         ))}
-       </div>
-    </div>
-  );
-};
-
-// --- Portal Search Helper Component ---
-
-interface PortalHeaderProps {
-  title: string;
-  onSearch: (query: string) => void;
-  lang: Language;
-  rightAction?: React.ReactNode;
-}
-
-const PortalHeader: React.FC<PortalHeaderProps> = ({ title, onSearch, lang, rightAction }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const t = translations[lang];
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      onSearch(searchQuery);
-    }
-  };
-
-  return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-      <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex-shrink-0">{title}</h2>
-      
-      <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto md:ml-auto">
-        {/* Search Bar - Expanded */}
-        <form onSubmit={handleSearchSubmit} className="relative w-full md:w-80 lg:w-96 group">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-slate-400 group-focus-within:text-brand-500 transition-colors" />
-          </div>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full pl-10 pr-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl leading-5 bg-white dark:bg-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition-all shadow-sm"
-            placeholder={t.searchPlaceholder}
-          />
-        </form>
-        
-        {/* Action Button (New Project, etc) */}
-        {rightAction && (
-          <div className="flex-shrink-0">
-            {rightAction}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// --- Missing Components Implementation ---
-
-interface SearchResultsPageProps {
-  results: SearchResult | null;
-  loading: boolean;
-  onSave: (variation: ReframeVariation) => void;
-  t: any;
-  lang: Language;
-}
-
-const SearchResultsPage: React.FC<SearchResultsPageProps> = ({ results, loading, onSave, t, lang }) => {
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <Loader2 className="w-10 h-10 text-brand-500 animate-spin mb-4" />
-        <p className="text-slate-500 animate-pulse">{t.analyzing}</p>
-      </div>
-    );
-  }
-
-  if (!results) return null;
-
-  return (
-    <div className="space-y-8 animate-fade-in">
-       <div className="text-center max-w-2xl mx-auto">
-          <p className="text-sm font-bold text-slate-400 uppercase tracking-wide mb-2">Original Thought</p>
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white mb-6">"{results.query}"</h2>
-          <div className="h-1 w-20 bg-brand-500 rounded-full mx-auto"></div>
-       </div>
-
-       <div className="grid md:grid-cols-3 gap-6">
-         {results.variations.map((variation, idx) => (
-           <div key={idx} className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col hover:shadow-md transition-shadow relative overflow-hidden group">
-              <div className={`absolute top-0 left-0 w-full h-1.5 ${
-                variation.type === 'ROOTS' ? 'bg-green-500' :
-                variation.type === 'BRANCHES' ? 'bg-blue-500' : 'bg-orange-500'
-              }`}></div>
-              
-              <div className="flex justify-between items-start mb-4">
-                 <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
-                    variation.type === 'ROOTS' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
-                    variation.type === 'BRANCHES' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :
-                    'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
-                 }`}>
-                   {variation.type}
-                 </span>
-              </div>
-
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{variation.title}</h3>
-              
-              <div className="mb-4 flex-1">
-                 <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4">
-                   {variation.context}
-                 </p>
-                 <div className="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl mb-4">
-                   <p className="text-xs text-slate-500 dark:text-slate-400 italic">"{variation.quote}"</p>
-                   <p className="text-xs text-slate-400 text-right mt-1">— {variation.author}</p>
-                 </div>
-                 
-                 <div className="space-y-2">
-                   <p className="text-xs font-bold text-slate-500 uppercase">Action Plan:</p>
-                   {variation.suggestedTasks.map((task, i) => (
-                     <div key={i} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
-                       <CheckCircle size={14} className="text-brand-500" />
-                       {task}
-                     </div>
-                   ))}
-                 </div>
-              </div>
-
-              <button 
-                onClick={() => onSave(variation)}
-                className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 transition-opacity"
-              >
-                {t.saveToPortal} <ArrowRight size={16} />
-              </button>
-           </div>
-         ))}
-       </div>
-    </div>
-  );
-};
-
-interface LandingPageContentProps {
-  onSearch: (query: string) => void;
-  t: any;
-  setLandingView: (view: View | null) => void;
-  lang: Language;
-}
-
-const LandingPageContent: React.FC<LandingPageContentProps> = ({ onSearch, t, setLandingView, lang }) => {
-  const [query, setQuery] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if(query.trim()) onSearch(query);
-  }
-
-  return (
-    <div className="animate-fade-in">
-       {/* Hero Section */}
-       <div className="relative pt-20 pb-32 overflow-hidden">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-brand-500/20 rounded-full blur-[100px] -z-10 opacity-50 dark:opacity-20"></div>
-          
-          <div className="max-w-4xl mx-auto px-4 text-center">
-             <div className="inline-flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full px-4 py-1.5 mb-8 shadow-sm animate-fade-in-up">
-               <Sparkles size={14} className="text-brand-500" />
-               <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">{t.subsubtitle}</span>
-             </div>
-             
-             <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-6 leading-tight">
-               {t.subtitle.split('.')[0]}.<br/>
-               <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-purple-600 dark:from-brand-400 dark:to-purple-400">
-                 {t.subtitle.split('.')[1]}.
-               </span>
-             </h1>
-             
-             <p className="text-xl text-slate-600 dark:text-slate-300 mb-12 max-w-2xl mx-auto leading-relaxed">
-               Reframe uses AI to help you shift your perspective using ancient wisdom and practical mental models.
-             </p>
-
-             <form onSubmit={handleSubmit} className="max-w-xl mx-auto relative group">
-                <div className="absolute inset-0 bg-brand-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
-                <div className="relative bg-white dark:bg-slate-800 rounded-2xl p-2 shadow-xl border border-slate-100 dark:border-slate-700 flex items-center">
-                   <div className="pl-4 text-slate-400">
-                     <Search size={20} />
                    </div>
-                   <input 
-                     value={query}
-                     onChange={(e) => setQuery(e.target.value)}
-                     className="flex-1 bg-transparent border-none focus:ring-0 text-lg px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400"
-                     placeholder={t.searchPlaceholder}
-                   />
-                   <button 
-                     type="submit"
-                     className="bg-brand-600 hover:bg-brand-700 text-white rounded-xl px-6 py-3 font-bold transition-colors"
-                   >
-                     Reframe
-                   </button>
-                </div>
-             </form>
-          </div>
-       </div>
+               )}
 
-       {/* Features Grid */}
-       <div className="max-w-7xl mx-auto px-4 py-20">
-          <div className="grid md:grid-cols-3 gap-8">
-             <div 
-               onClick={() => setLandingView(View.ROOTS)}
-               className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group"
-             >
-                <div className="w-14 h-14 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Sprout size={28} />
-                </div>
-                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">{t.roots}</h3>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-                  {t.rootsDesc} {lang === 'en' ? 'Philosophy, Stoicism, and First Principles.' : 'Filosofía, Estoicismo y Primeros Principios.'}
-                </p>
-                <span className="text-brand-600 dark:text-brand-400 font-bold flex items-center gap-2 group-hover:gap-3 transition-all">
-                  Explore Roots <ArrowRight size={16} />
-                </span>
-             </div>
+               {activeTab === 'Coach' && (
+                   <div className="animate-fade-in space-y-6" role="tabpanel">
+                        <div className="bg-gradient-to-br from-brand-50 to-white dark:from-slate-800 dark:to-slate-900 p-6 rounded-2xl border border-brand-100 dark:border-slate-700">
+                             <div className="flex gap-4 items-start">
+                                 <div className="bg-brand-100 dark:bg-brand-900/30 p-3 rounded-full text-brand-600 dark:text-brand-400">
+                                     <Sparkles size={24} />
+                                 </div>
+                                 <div className="flex-1">
+                                     <h3 className="font-serif font-bold text-lg text-slate-800 dark:text-white mb-2">Need Perspective?</h3>
+                                     <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                                         The AI Coach can analyze your current progress and description to provide a tailored reframe or wisdom nugget to keep you moving.
+                                     </p>
+                                     <button 
+                                       onClick={handleGetCoaching} 
+                                       disabled={loadingWisdom}
+                                       className="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-lg shadow-brand-500/20"
+                                     >
+                                         {loadingWisdom ? <Loader2 className="animate-spin" /> : 'Get Coaching Insight'}
+                                     </button>
+                                 </div>
+                             </div>
+                        </div>
 
-             <div 
-               onClick={() => setLandingView(View.BRANCHES)}
-               className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group"
-             >
-                <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <GitFork size={28} />
-                </div>
-                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">{t.branches}</h3>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-                  {t.branchesDesc} {lang === 'en' ? 'Applied wisdom for Career, Relationships, and Life.' : 'Sabiduría aplicada para Carrera, Relaciones y Vida.'}
-                </p>
-                <span className="text-brand-600 dark:text-brand-400 font-bold flex items-center gap-2 group-hover:gap-3 transition-all">
-                  Explore Branches <ArrowRight size={16} />
-                </span>
-             </div>
+                        {coachWisdom && (
+                            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-sand-200 dark:border-slate-700 shadow-sm relative overflow-hidden">
+                                <Quote className="absolute top-4 right-4 text-brand-100 dark:text-slate-700 w-16 h-16 opacity-50" />
+                                <blockquote className="text-xl font-serif italic text-slate-800 dark:text-sand-100 mb-4 relative z-10">
+                                    "{coachWisdom.quote}"
+                                </blockquote>
+                                <div className="text-sm font-bold text-slate-500 mb-6 uppercase tracking-wider relative z-10">— {coachWisdom.author}</div>
+                                
+                                <div className="bg-sand-50 dark:bg-slate-900/50 p-4 rounded-xl mb-4 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                    {coachWisdom.context}
+                                </div>
+                                <div className="flex items-center gap-2 text-brand-600 dark:text-brand-400 font-medium text-sm">
+                                    <Target size={16} /> Try this: {coachWisdom.actionableStep}
+                                </div>
+                            </div>
+                        )}
+                   </div>
+               )}
 
-             <div 
-               onClick={() => setLandingView(View.TOOLBOX)}
-               className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group"
-             >
-                <div className="w-14 h-14 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Wrench size={28} />
-                </div>
-                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">{t.toolbox}</h3>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-                  {t.toolboxDesc} {lang === 'en' ? 'Mental models, frameworks, and immediate fixes.' : 'Modelos mentales, marcos y arreglos inmediatos.'}
-                </p>
-                <span className="text-brand-600 dark:text-brand-400 font-bold flex items-center gap-2 group-hover:gap-3 transition-all">
-                  Open Toolbox <ArrowRight size={16} />
-                </span>
-             </div>
-          </div>
-       </div>
+               {activeTab === 'Journal' && (
+                   <div className="animate-fade-in space-y-6" role="tabpanel">
+                       <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-sand-200 dark:border-slate-700 shadow-sm">
+                           <label htmlFor="journal-note" className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">How are you feeling about this project?</label>
+                           <div className="flex gap-2 mb-4 overflow-x-auto pb-2 custom-scrollbar">
+                               {moods.map(m => (
+                                   <button
+                                     key={m.type}
+                                     onClick={() => setSelectedMood(m.type)}
+                                     aria-pressed={selectedMood === m.type}
+                                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all whitespace-nowrap
+                                        ${selectedMood === m.type 
+                                            ? `${m.color} border-transparent ring-2 ring-offset-1 dark:ring-offset-slate-800 ring-brand-200` 
+                                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                                   >
+                                       {m.icon} {m.label}
+                                   </button>
+                               ))}
+                           </div>
+                           <textarea 
+                              id="journal-note"
+                              value={noteInput}
+                              onChange={(e) => setNoteInput(e.target.value)}
+                              placeholder="Capture a thought, win, or blocker..."
+                              className="w-full border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-sand-50 dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none h-24 resize-none mb-3 placeholder:text-slate-500"
+                           />
+                           <div className="flex justify-end">
+                               <button 
+                                 onClick={handleAddProjectNote}
+                                 disabled={!noteInput.trim()}
+                                 className="bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                               >
+                                   Add Entry
+                               </button>
+                           </div>
+                       </div>
 
-       {/* Wisdom Section */}
-       <div className="bg-slate-900 text-white py-20 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-500/20 rounded-full blur-[100px]"></div>
-          <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-             <Sparkles className="w-8 h-8 text-yellow-400 mx-auto mb-6" />
-             <h2 className="text-3xl md:text-4xl font-bold mb-8">"{t.footerQuote}"</h2>
-             <p className="text-xl text-slate-300 mb-8">— Viktor Frankl</p>
-             <button onClick={() => setLandingView(View.ROOTS)} className="bg-white text-slate-900 px-8 py-3 rounded-full font-bold hover:bg-slate-100 transition-colors">
-               Start Reframing
-             </button>
-          </div>
-       </div>
+                       <div className="space-y-4">
+                           {project.notes && project.notes.length > 0 ? (
+                               project.notes.map(note => {
+                                   const moodObj = moods.find(m => m.type === note.mood) || moods[3];
+                                   return (
+                                       <div key={note.id} className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-sand-100 dark:border-slate-700 flex gap-4">
+                                           <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${moodObj.color}`}>
+                                               {moodObj.icon}
+                                           </div>
+                                           <div>
+                                               <div className="flex items-center gap-2 mb-1">
+                                                   <span className="text-xs font-bold text-slate-500 uppercase">{moodObj.label}</span>
+                                                   <span className="text-[10px] text-slate-400">• {new Date(note.createdAt).toLocaleString()}</span>
+                                               </div>
+                                               <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{note.content}</p>
+                                           </div>
+                                       </div>
+                                   );
+                               })
+                           ) : (
+                               <div className="text-center py-8">
+                                   <BookOpen className="mx-auto text-slate-300 mb-2" size={32} />
+                                   <p className="text-slate-400 text-sm">No journal entries yet.</p>
+                               </div>
+                           )}
+                       </div>
+                   </div>
+               )}
+           </div>
+        </div>
+      </div>
     </div>
   );
 };
 
+// --- Helper Components for Icons ---
 
-// --- Portal Main Component ---
-// (Defined before App to be used in App)
+const RocketIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>;
 
-interface PortalProps { 
-  user: User; 
-  view: View; 
-  setView: (v: View) => void;
-  projects: Project[];
-  activeProjectId: string | null;
-  setActiveProjectId: (id: string | null) => void;
-  onAddProject: () => void;
-  onToggleTask: (pid: string, tid: string) => void;
-  onDeleteProject: (pid: string) => void;
-  onUpdatePriority: (pid: string, tid: string, priority: Priority) => void;
-  onEditTask: (pid: string, task: Task) => void;
-  onNewTask: () => void;
-  onAddTask: (pid: string) => void;
-  onUpdateProject: (p: Project) => void;
-  searchResults: SearchResult | null;
-  onSearch: (q: string) => void;
-  loadingSearch: boolean;
-  onSaveSearchResult: (v: ReframeVariation) => void;
-  t: any;
+// --- Portal Component ---
+
+interface PortalProps {
+  user: User;
+  currentView: View;
+  setView: (view: View) => void;
   lang: Language;
   onLogout: () => void;
 }
 
-const Portal: React.FC<PortalProps> = ({ 
-  user, view, setView, projects, activeProjectId, setActiveProjectId, onAddProject, onToggleTask, onDeleteProject, onUpdatePriority, onEditTask, onNewTask, onAddTask, onUpdateProject,
-  searchResults, onSearch, loadingSearch, onSaveSearchResult, t, lang, onLogout
-}) => {
-  const [filter, setFilter] = useState<'All' | 'Personal' | 'Career' | 'Health' | 'Spiritual'>('All');
-
-  const filteredProjects = filter === 'All' ? projects : projects.filter(p => p.category === filter);
-
-  const activeProject = projects.find(p => p.id === activeProjectId);
-
-  const handleSelectProject = (projectId: string) => {
-    setActiveProjectId(projectId);
-    setView(View.PROJECT_DETAIL);
-  };
-
-  return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden">
-      {/* Sidebar */}
-      <aside className="hidden lg:flex w-64 flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 h-full">
-        <div className="p-6">
-           <div className="flex items-center gap-3 mb-8">
-             <div className="w-10 h-10 rounded-full bg-brand-50 dark:bg-brand-900/50 flex items-center justify-center text-brand-600 dark:text-brand-400 font-bold text-lg border border-brand-100 dark:border-brand-800">
-                {user.photoURL ? <img src={user.photoURL} alt="User" className="w-full h-full rounded-full" /> : user.displayName?.[0] || 'U'}
-             </div>
-             <div>
-               <p className="font-bold text-slate-800 dark:text-slate-100 text-sm">{user.displayName}</p>
-               <p className="text-xs text-slate-500 dark:text-slate-400">Level 3 Explorer</p>
-             </div>
-           </div>
-
-           <nav className="space-y-1">
-             <NavButton active={view === View.DASHBOARD} onClick={() => setView(View.DASHBOARD)} icon={<LayoutDashboard size={20} />} label={t.dashboard} />
-             <NavButton 
-               active={view === View.PROJECTS || view === View.PROJECT_DETAIL} 
-               onClick={() => setView(View.PROJECTS)} 
-               icon={<Briefcase size={20} />} 
-               label={t.projects} 
-               onAdd={onAddProject}
-             />
-             <NavButton 
-               active={view === View.TASKS} 
-               onClick={() => setView(View.TASKS)} 
-               icon={<CheckSquare size={20} />} 
-               label={t.tasks} 
-               onAdd={onNewTask}
-             />
-             <NavButton active={view === View.WISDOM} onClick={() => setView(View.WISDOM)} icon={<Lightbulb size={20} />} label={t.wisdom} />
-             {/* Profile Removed from here as requested */}
-           </nav>
-        </div>
-        
-        <div className="mt-auto p-6 border-t border-slate-100 dark:border-slate-800">
-           <div className="bg-brand-50 dark:bg-brand-900/20 rounded-xl p-4 mb-4">
-             <div className="flex items-center gap-2 text-brand-700 dark:text-brand-300 font-bold text-sm mb-2">
-               <Zap size={16} /> Daily Streak
-             </div>
-             <p className="text-xs text-brand-600 dark:text-brand-400">You've logged in 3 days in a row! Keep it up!</p>
-           </div>
-           
-           <div className="flex items-center justify-between pt-2">
-              <button 
-                onClick={() => setView(View.PROFILE)} 
-                className="p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
-                title={t.settings}
-              >
-                <Settings size={20} />
-              </button>
-              <button 
-                onClick={() => setView(View.PROFILE)} 
-                className="p-2 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
-                title={t.profile}
-              >
-                <UserCircle size={20} />
-              </button>
-              <button 
-                onClick={onLogout} 
-                className="p-2 text-slate-400 hover:text-red-500 transition-colors"
-                title={t.signOut}
-              >
-                <LogOut size={20} />
-              </button>
-           </div>
-        </div>
-      </aside>
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50 dark:bg-slate-950">
-         {/* Mobile Header for Portal (can be added if sidebar is strictly hidden, but we have global hamburger) */}
-         
-         <div className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
-           {view === View.DASHBOARD && (
-             <div className="max-w-5xl mx-auto space-y-8 animate-fade-in">
-               <PortalHeader 
-                  title={t.dashboard} 
-                  onSearch={onSearch} 
-                  lang={lang} 
-                  // New Task button removed as requested
-               />
-               
-               {/* Quick Stats */}
-               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                    <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-1">Active Projects</p>
-                    <p className="text-2xl font-bold text-slate-900 dark:text-white">{projects.length}</p>
-                  </div>
-                  <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                    <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-1">Pending Tasks</p>
-                    <p className="text-2xl font-bold text-slate-900 dark:text-white">{projects.reduce((acc, p) => acc + p.tasks.filter(t => !t.isCompleted).length, 0)}</p>
-                  </div>
-                  <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                    <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-1">Wisdom XP</p>
-                    <p className="text-2xl font-bold text-slate-900 dark:text-white">1,250</p>
-                  </div>
-                  <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                    <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-1">Focus</p>
-                    <p className="text-2xl font-bold text-slate-900 dark:text-white">85%</p>
-                  </div>
-               </div>
-
-               {/* Recent Projects */}
-               <div>
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">Recent Projects</h3>
-                    <button onClick={() => setView(View.PROJECTS)} className="text-sm text-brand-600 dark:text-brand-400 hover:underline">View All</button>
-                  </div>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
-                    {projects.slice(0, 3).map(project => (
-                      <ProjectCard 
-                        key={project.id} 
-                        project={project} 
-                        onSelect={handleSelectProject} 
-                        onToggleTask={onToggleTask}
-                        onDelete={onDeleteProject}
-                        onUpdatePriority={onUpdatePriority}
-                        onEditTask={onEditTask}
-                      />
-                    ))}
-                    {projects.length === 0 && (
-                      <div className="col-span-full py-12 text-center bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
-                         <p className="text-slate-500 dark:text-slate-400 mb-4">No projects yet.</p>
-                         <button onClick={onAddProject} className="text-brand-600 font-medium hover:underline">Create your first project</button>
-                      </div>
-                    )}
-                  </div>
-               </div>
-             </div>
-           )}
-
-           {view === View.PROJECTS && (
-             <div className="max-w-6xl mx-auto space-y-6 animate-fade-in">
-               <PortalHeader 
-                  title={t.projects} 
-                  onSearch={onSearch} 
-                  lang={lang} 
-                  rightAction={
-                    <button 
-                      onClick={onAddProject}
-                      className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl font-medium flex items-center gap-2 shadow-lg shadow-brand-500/20 w-full justify-center md:w-auto"
-                    >
-                      <Plus size={18} /> {t.createProject}
-                    </button>
-                  }
-               />
-               
-               {/* Filters */}
-               <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                  {['All', 'Personal', 'Career', 'Health', 'Spiritual'].map(cat => (
-                    <button 
-                      key={cat}
-                      onClick={() => setFilter(cat as any)}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${filter === cat ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-               </div>
-
-               <div className="grid md:grid-cols-2 gap-6">
-                 {filteredProjects.map(project => (
-                    <ProjectCard 
-                      key={project.id} 
-                      project={project} 
-                      onSelect={handleSelectProject} 
-                      onToggleTask={onToggleTask}
-                      onDelete={onDeleteProject}
-                      onUpdatePriority={onUpdatePriority}
-                      onEditTask={onEditTask}
-                    />
-                 ))}
-               </div>
-             </div>
-           )}
-
-           {view === View.PROJECT_DETAIL && activeProject && (
-              <ProjectDetailPage 
-                project={activeProject}
-                projects={projects}
-                onSelectProject={handleSelectProject}
-                // Back button handler removed from UI but prop kept for type safety or future use
-                onBack={() => setView(View.PROJECTS)}
-                onToggleTask={onToggleTask}
-                onUpdatePriority={onUpdatePriority}
-                onEditTask={onEditTask}
-                onAddTask={onAddTask}
-                onUpdateProject={onUpdateProject}
-                onNavigateToToolbox={() => setView(View.TOOLBOX)}
-                lang={lang}
-              />
-           )}
-
-           {view === View.TASKS && (
-             <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
-                <PortalHeader 
-                  title={t.tasks} 
-                  onSearch={onSearch} // Can filter tasks locally or globally
-                  lang={lang} 
-                  rightAction={
-                    <button 
-                      onClick={onNewTask}
-                      className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl font-medium flex items-center gap-2 shadow-lg w-full justify-center md:w-auto"
-                    >
-                      <Plus size={18} /> {t.newTask}
-                    </button>
-                  }
-               />
-               <AllTasksView 
-                 projects={projects} 
-                 onToggleTask={onToggleTask}
-                 onEditTask={onEditTask}
-                 lang={lang}
-               />
-             </div>
-           )}
-
-           {view === View.SEARCH_RESULTS && (
-              <div className="max-w-7xl mx-auto animate-fade-in pb-20">
-                 <button onClick={() => setView(View.DASHBOARD)} className="flex items-center text-slate-500 hover:text-brand-600 mb-6">
-                   <ArrowLeft size={20} className="mr-2" /> Back to Dashboard
-                 </button>
-                 <SearchResultsPage 
-                   results={searchResults} 
-                   loading={loadingSearch} 
-                   onSave={onSaveSearchResult}
-                   t={t}
-                   lang={lang}
-                 />
-              </div>
-           )}
-
-           {(view === View.WISDOM || view === View.ROOTS || view === View.BRANCHES || view === View.TOOLBOX) && (
-              <div className="max-w-3xl mx-auto py-8 animate-fade-in">
-                 <WisdomGenerator />
-                 <div className="mt-12 text-center text-slate-400 text-sm">
-                   More modules coming soon...
-                 </div>
-              </div>
-           )}
-         </div>
-      </div>
-    </div>
-  );
-};
-
-
-// --- App Component ---
-
-const App: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
-  const [lang, setLang] = useState<Language>('en');
+const Portal: React.FC<PortalProps> = ({ user, currentView, setView, lang, onLogout }) => {
   const t = translations[lang];
-
-  // Views
-  const [landingView, setLandingView] = useState<View | null>(null); // Null = Home
-  const [portalView, setPortalView] = useState<View>(View.DASHBOARD);
-  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-  
-  // Data
   const [projects, setProjects] = useState<Project[]>([]);
-  const [searchResults, setSearchResults] = useState<SearchResult | null>(null);
-  const [pendingProject, setPendingProject] = useState<Project | null>(null);
+  const [newProjectModalOpen, setNewProjectModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
 
-  // Modals & Mobile Menu
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  // Task CRUD State
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // All Tasks View State
+  const [taskGroupBy, setTaskGroupBy] = useState<'None' | 'Project' | 'Priority'>('Project');
+  const [taskSortBy, setTaskSortBy] = useState<'Date' | 'Priority'>('Date');
 
   useEffect(() => {
-    // Theme Init
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setDarkMode(true);
-    }
-
-    // Auth Init using modular subscription helper
-    const unsubscribe = subscribeToAuth((currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    // Mock Data
+    setProjects([
+      {
+        id: '1',
+        title: 'Marathon Training',
+        description: 'Prepare for the city marathon in 6 months using the run/walk method.',
+        category: 'Health',
+        progress: 35,
+        tasks: [
+           { id: 't1', title: 'Buy running shoes', isCompleted: true, priority: 'High', description: 'Go to runner store' },
+           { id: 't2', title: 'Run 5k', isCompleted: false, priority: 'Medium' },
+           { id: 't3', title: 'Register for race', isCompleted: false, priority: 'High' }
+        ],
+        notes: [],
+        createdAt: Date.now()
+      },
+      {
+        id: '2',
+        title: 'Learn Spanish',
+        description: 'Be conversational before the summer trip to Barcelona.',
+        category: 'Career',
+        progress: 10,
+        tasks: [
+            { id: 't4', title: 'Download Duolingo', isCompleted: true, priority: 'Low' },
+            { id: 't5', title: 'Practice 15 mins/day', isCompleted: false, priority: 'High' }
+        ],
+        notes: [],
+        createdAt: Date.now()
+      }
+    ]);
   }, []);
 
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
-
-  const toggleTheme = () => setDarkMode(!darkMode);
-  const toggleLang = () => setLang(l => l === 'en' ? 'es' : 'en');
-
-  const handleLogout = async () => {
-    await logout();
-    setUser(null);
-    setPortalView(View.DASHBOARD);
-    setLandingView(null);
-    window.scrollTo(0, 0);
+  const handleCreateProject = (project: Project) => {
+    setProjects([...projects, project]);
+    setNewProjectModalOpen(false);
   };
 
-  const handleAddProject = (project: Project) => {
-    setProjects([project, ...projects]);
-    if (user) {
-      setPortalView(View.PROJECTS);
-    }
+  const handleUpdateProject = (updatedProject: Project) => {
+      setProjects(projects.map(p => p.id === updatedProject.id ? updatedProject : p));
   };
 
-  const handleSearch = async (query: string) => {
-    // Navigate to results view
-    if (user) {
-      setPortalView(View.SEARCH_RESULTS);
-    } else {
-      setLandingView(View.SEARCH_RESULTS);
-    }
-
-    // Reset previous results while loading
-    setSearchResults(null);
-
-    try {
-      const result = await analyzeSituation(query);
-      setSearchResults(result);
-    } catch (e) {
-      console.error(e);
-    }
+  const handleDeleteProject = (projectId: string) => {
+      setProjects(projects.filter(p => p.id !== projectId));
+      if (selectedProjectId === projectId) setView(View.DASHBOARD);
   };
-
-  const handleSaveSearchResult = (variation: ReframeVariation) => {
-    const newProject: Project = {
-      id: Date.now().toString(),
-      title: variation.title,
-      description: variation.context,
-      category: 'Personal',
-      progress: 0,
-      tasks: variation.suggestedTasks.map((t, i) => ({
-        id: `task-${i}`,
-        title: t,
-        isCompleted: false,
-        priority: 'Medium'
-      })),
-      notes: [],
-      createdAt: Date.now()
-    };
-
-    if (user) {
-      handleAddProject(newProject);
-      setPortalView(View.PROJECTS);
-    } else {
-      setPendingProject(newProject);
-      setIsLoginOpen(true);
-    }
-  };
-
-  const handleLoginSuccess = (loggedInUser: User) => {
-    setUser(loggedInUser);
-    if (pendingProject) {
-      setProjects([pendingProject, ...projects]);
-      setPendingProject(null);
-      setPortalView(View.PROJECTS);
-    }
-  };
-
-  // --- Task CRUD Handlers ---
 
   const handleToggleTask = (projectId: string, taskId: string) => {
     setProjects(projects.map(p => {
@@ -2450,385 +1120,1256 @@ const App: React.FC = () => {
     }));
   };
 
-  const handleDeleteProject = (projectId: string) => {
-    setProjects(projects.filter(p => p.id !== projectId));
-    if (activeProjectId === projectId) {
-      setActiveProjectId(null);
-      setPortalView(View.PROJECTS);
-    }
-  };
-
   const handleUpdatePriority = (projectId: string, taskId: string, priority: Priority) => {
-    setProjects(projects.map(p => {
-      if (p.id === projectId) {
-        return {
-          ...p,
-          tasks: p.tasks.map(t => t.id === taskId ? { ...t, priority } : t)
-        };
-      }
-      return p;
-    }));
-  };
-
-  const handleOpenEditTask = (projectId: string, task: Task) => {
-    setEditingTask({ ...task, projectId });
-    setIsTaskModalOpen(true);
-  };
-
-  const handleOpenNewTask = () => {
-    setEditingTask(null); // Clear for new task
-    setIsTaskModalOpen(true);
-  };
-
-  const handleAddTaskToProject = (projectId: string) => {
-    setEditingTask({ 
-      id: '', // New task
-      title: '', 
-      isCompleted: false, 
-      projectId: projectId, 
-      priority: 'Medium' 
-    });
-    setIsTaskModalOpen(true);
-  }
-
-  const handleUpdateProject = (updatedProject: Project) => {
-    setProjects(projects.map(p => p.id === updatedProject.id ? updatedProject : p));
-  }
-
-  const handleSaveTask = (task: Task) => {
-    if (editingTask && editingTask.id) {
-        // Update Existing
-        setProjects(projects.map(p => {
-            if (p.id === task.projectId) {
-                return {
-                    ...p,
-                    tasks: p.tasks.map(t => t.id === task.id ? task : t)
-                };
-            }
-            return p;
-        }));
-    } else {
-        // Create New
-        setProjects(projects.map(p => {
-            if (p.id === task.projectId) {
-                return {
-                    ...p,
-                    tasks: [...p.tasks, task]
-                };
-            }
-            return p;
-        }));
-    }
-    setIsTaskModalOpen(false);
-    setEditingTask(null);
-  };
-
-  const handleDeleteTask = (taskId: string) => {
-      // Find project first
-      const project = projects.find(p => p.tasks.some(t => t.id === taskId));
-      if(!project) return;
-
       setProjects(projects.map(p => {
-          if (p.id === project.id) {
+          if (p.id === projectId) {
               return {
                   ...p,
-                  tasks: p.tasks.filter(t => t.id !== taskId)
+                  tasks: p.tasks.map(t => t.id === taskId ? { ...t, priority } : t)
               };
           }
           return p;
       }));
-      setIsTaskModalOpen(false);
-      setEditingTask(null);
   };
 
-  // --- Views ---
+  // Task CRUD Handlers
+  const openNewTaskModal = (preselectProjectId?: string) => {
+      setEditingTask(null); // Clear for new
+      // If preselectProjectId is passed, we could handle it in default state of modal, 
+      // but for now modal defaults to first project.
+      setTaskModalOpen(true);
+  };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-brand-500 animate-spin" />
+  const openEditTaskModal = (projectId: string, task: Task) => {
+      setEditingTask({ ...task, projectId }); // Ensure projectId is attached
+      setTaskModalOpen(true);
+  };
+
+  const handleSaveTask = (task: Task) => {
+      const pid = task.projectId;
+      if (!pid) return;
+
+      setProjects(prev => prev.map(p => {
+          if (p.id === pid) {
+              const existingTaskIndex = p.tasks.findIndex(t => t.id === task.id);
+              if (existingTaskIndex >= 0) {
+                  // Update
+                  const newTasks = [...p.tasks];
+                  newTasks[existingTaskIndex] = task;
+                  return { ...p, tasks: newTasks };
+              } else {
+                  // Create
+                  return { ...p, tasks: [task, ...p.tasks] };
+              }
+          }
+          return p;
+      }));
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+      setProjects(prev => prev.map(p => ({
+          ...p,
+          tasks: p.tasks.filter(t => t.id !== taskId)
+      })));
+  };
+
+  const handleSearch = (q: string) => {
+      setSearchQuery(q);
+      if (q.trim().length > 0) {
+          // In a real app, this might trigger a navigation to a search results view
+          // For now we assume the dashboard handles it or we switch to a search view
+          // But based on prompt, let's switch to Search Results view if user hits enter
+      }
+  };
+
+  const handleSearchSubmit = async () => {
+      if (!searchQuery.trim()) return;
+      setView(View.SEARCH_RESULTS);
+  };
+
+  const PortalHeader = ({ title, showAdd = false }: { title: string, showAdd?: boolean }) => (
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+          <h2 className="text-3xl font-serif font-bold text-slate-800 dark:text-white">{title}</h2>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+               {/* Expanded Search Bar in Portal */}
+               <div className="relative flex-1 md:w-64">
+                  <label htmlFor="portal-search" className="sr-only">{t.searchPlaceholder}</label>
+                  <input 
+                    id="portal-search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
+                    placeholder={t.searchPlaceholder}
+                    className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-sand-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none shadow-sm transition-all placeholder:text-slate-500"
+                  />
+                  <Search className="absolute left-3 top-2.5 text-slate-400" size={18} />
+               </div>
+               
+               {showAdd && (
+                   <button 
+                     onClick={() => setNewProjectModalOpen(true)}
+                     className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium shadow-lg shadow-brand-500/20 transition-all flex items-center gap-2 whitespace-nowrap"
+                   >
+                       <Plus size={18} /> {t.createProject}
+                   </button>
+               )}
+          </div>
       </div>
-    );
-  }
+  );
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans selection:bg-brand-500/20 ${darkMode ? 'dark' : ''}`}>
-      
-      {/* --- Global Persistent Header --- */}
-      <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          
-          {/* Logo */}
-          <div 
-            className="flex items-center gap-2 cursor-pointer" 
-            onClick={() => {
-               if (user) {
-                   setPortalView(View.DASHBOARD);
-               } else {
-                   setLandingView(null);
-               }
-               window.scrollTo(0,0);
-            }}
-          >
-            <div className="relative w-8 h-8">
-               <div className="absolute inset-0 bg-brand-500 rounded-lg rotate-3 opacity-20 animate-pulse"></div>
-               <div className="absolute inset-0 bg-brand-600 rounded-lg -rotate-3 flex items-center justify-center text-white">
-                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="w-5 h-5">
-                   <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                   <path d="M3 3v5h5" />
-                   <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-                   <path d="M16 21h5v-5" />
-                 </svg>
+    <div className="flex min-h-screen bg-sand-50 dark:bg-brand-950 pt-20">
+      {/* Sidebar */}
+      <aside className="w-64 hidden lg:flex flex-col fixed left-0 top-20 bottom-0 bg-white dark:bg-slate-900 border-r border-sand-200 dark:border-slate-800 z-10">
+         <div className="p-6">
+             <div className="flex items-center gap-3 mb-8">
+                <div className="w-10 h-10 rounded-full bg-brand-100 dark:bg-slate-800 flex items-center justify-center text-brand-600 dark:text-brand-400 font-bold text-lg">
+                    {user.displayName ? user.displayName[0] : 'U'}
+                </div>
+                <div>
+                    <p className="font-bold text-slate-800 dark:text-white text-sm">{user.displayName}</p>
+                    <p className="text-xs text-slate-500">Free Plan</p>
+                </div>
+             </div>
+             
+             <nav className="space-y-1">
+                 <NavButton active={currentView === View.DASHBOARD} onClick={() => setView(View.DASHBOARD)} icon={<LayoutDashboard size={20}/>} label={t.dashboard} />
+                 
+                 {/* Projects with Quick Add */}
+                 <div className={`group flex items-center justify-between rounded-xl px-4 py-3 cursor-pointer transition-colors ${currentView === View.PROJECTS ? 'bg-brand-50 dark:bg-brand-900/10 text-brand-700 dark:text-brand-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                     <button onClick={() => setView(View.PROJECTS)} className="flex items-center gap-3 flex-1 text-left focus:outline-none">
+                         <ListTodo size={20} />
+                         <span className="font-medium text-sm">{t.projects}</span>
+                     </button>
+                     <button onClick={(e) => { e.stopPropagation(); setNewProjectModalOpen(true); }} className="p-1 rounded-md hover:bg-brand-200 dark:hover:bg-slate-600 text-slate-400 hover:text-brand-700 transition-colors" aria-label="Add project">
+                         <Plus size={16} />
+                     </button>
+                 </div>
+
+                 {/* Tasks with Quick Add */}
+                 <div className={`group flex items-center justify-between rounded-xl px-4 py-3 cursor-pointer transition-colors ${currentView === View.TASKS ? 'bg-brand-50 dark:bg-brand-900/10 text-brand-700 dark:text-brand-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                     <button onClick={() => setView(View.TASKS)} className="flex items-center gap-3 flex-1 text-left focus:outline-none">
+                         <CheckSquare size={20} />
+                         <span className="font-medium text-sm">{t.tasks}</span>
+                     </button>
+                     <button onClick={(e) => { e.stopPropagation(); openNewTaskModal(); }} className="p-1 rounded-md hover:bg-brand-200 dark:hover:bg-slate-600 text-slate-400 hover:text-brand-700 transition-colors" aria-label="Add task">
+                         <Plus size={16} />
+                     </button>
+                 </div>
+
+                 <NavButton active={currentView === View.WISDOM} onClick={() => setView(View.WISDOM)} icon={<Lightbulb size={20}/>} label={t.wisdom} />
+                 <div className="pt-4 border-t border-sand-100 dark:border-slate-800 mt-4">
+                    <p className="px-4 text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Explore</p>
+                    <NavButton active={currentView === View.ROOTS} onClick={() => setView(View.ROOTS)} icon={<Sprout size={20}/>} label={t.roots} />
+                    <NavButton active={currentView === View.BRANCHES} onClick={() => setView(View.BRANCHES)} icon={<GitFork size={20}/>} label={t.branches} />
+                    <NavButton active={currentView === View.TOOLBOX} onClick={() => setView(View.TOOLBOX)} icon={<Wrench size={20}/>} label={t.toolbox} />
+                 </div>
+             </nav>
+         </div>
+         
+         {/* Bottom Actions Row */}
+         <div className="mt-auto p-4 border-t border-sand-200 dark:border-slate-800 flex justify-around">
+             <button className="p-2 text-slate-400 hover:text-brand-600 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" title={t.settings} aria-label={t.settings}>
+                 <Settings size={20} />
+             </button>
+             <button className="p-2 text-slate-400 hover:text-brand-600 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" title={t.profile} aria-label={t.profile}>
+                 <UserIcon size={20} />
+             </button>
+             <button onClick={onLogout} className="p-2 text-slate-400 hover:text-danger hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title={t.signOut} aria-label={t.signOut}>
+                 <LogOut size={20} />
+             </button>
+         </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 lg:ml-64 p-6 lg:p-10 animate-fade-in w-full max-w-[1600px] mx-auto">
+        {currentView === View.DASHBOARD && (
+          <div className="space-y-8">
+            <PortalHeader title={`${t.dashboard}, ${user.displayName?.split(' ')[0]}`} />
+            
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-2 gap-4">
+               <div className="bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl p-6 text-white shadow-lg shadow-brand-500/20">
+                  <div className="flex items-center gap-3 mb-2 opacity-90">
+                      <ListTodo size={24} />
+                      <span className="font-medium text-sm md:text-base">Active Projects</span>
+                  </div>
+                  <p className="text-3xl font-serif font-bold">{projects.length}</p>
+               </div>
+               <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-sand-200 dark:border-slate-700 shadow-sm">
+                   <div className="flex items-center gap-3 mb-2 text-slate-500 dark:text-slate-400">
+                      <CheckCircle size={24} />
+                      <span className="font-medium text-sm md:text-base">Tasks Completed</span>
+                  </div>
+                  <p className="text-3xl font-serif font-bold text-slate-800 dark:text-white">
+                      {projects.reduce((acc, p) => acc + p.tasks.filter(t => t.isCompleted).length, 0)}
+                  </p>
                </div>
             </div>
-            <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">Reframe</span>
-          </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            <button 
-              onClick={() => user ? setPortalView(View.ROOTS) : setLandingView(View.ROOTS)} 
-              className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
-            >
-              {t.roots}
-            </button>
-            <button 
-              onClick={() => user ? setPortalView(View.BRANCHES) : setLandingView(View.BRANCHES)} 
-              className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
-            >
-              {t.branches}
-            </button>
-            <button 
-              onClick={() => user ? setPortalView(View.TOOLBOX) : setLandingView(View.TOOLBOX)} 
-              className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors"
-            >
-              {t.toolbox}
-            </button>
-          </nav>
-
-          {/* Right Actions (Visible on Mobile & Desktop) */}
-          <div className="flex items-center gap-3">
-             {/* Language (Desktop Only) */}
-             <div className="hidden md:flex items-center gap-2 border-r border-slate-200 dark:border-slate-700 pr-3 mr-1">
-                <LanguageToggle lang={lang} toggleLang={toggleLang} />
-             </div>
-
-             {/* Theme Toggle (Always Visible) */}
-             <ThemeToggle darkMode={darkMode} toggleTheme={toggleTheme} />
-
-             {/* Auth Button */}
-             {user ? (
-               <div className="relative group z-50">
-                 <button className="flex items-center gap-2 pl-2">
-                    <div className="w-9 h-9 rounded-full bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 flex items-center justify-center font-bold border border-brand-200 dark:border-brand-800">
-                      {user.photoURL ? (
-                        <img src={user.photoURL} alt="Profile" className="w-full h-full rounded-full object-cover" />
-                      ) : (
-                        user.displayName ? user.displayName[0].toUpperCase() : 'U'
-                      )}
-                    </div>
-                 </button>
-                 
-                 {/* User Dropdown */}
-                 <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 p-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all transform origin-top-right">
-                    <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800 mb-1">
-                      <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{user.displayName || 'User'}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user.email}</p>
-                    </div>
-                    <button onClick={() => setPortalView(View.PROFILE)} className="w-full text-left px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2">
-                      <UserCircle size={16} /> {t.profile}
-                    </button>
-                    <button onClick={() => setPortalView(View.PROFILE)} className="w-full text-left px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2">
-                      <Settings size={16} /> {t.settings}
-                    </button>
-                    <button onClick={handleLogout} className="w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors flex items-center gap-2">
-                      <LogOut size={16} /> {t.signOut}
-                    </button>
-                 </div>
-               </div>
-             ) : (
-               <button 
-                 onClick={() => setIsLoginOpen(true)}
-                 className="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2 rounded-full font-bold text-sm transition-all shadow-md hover:shadow-lg flex items-center gap-2"
-               >
-                 <UserCircle size={18} />
-                 <span className="hidden sm:inline">{t.signIn}</span>
-               </button>
-             )}
-
-             {/* Mobile Menu Button */}
-             <button 
-               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-               className="md:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-             >
-               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-             </button>
-          </div>
-        </div>
-
-        {/* Mobile Menu Dropdown */}
-        {mobileMenuOpen && (
-           <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 animate-fade-in-down">
-              <div className="px-4 py-4 space-y-2">
-                <button 
-                   onClick={() => { setMobileMenuOpen(false); user ? setPortalView(View.ROOTS) : setLandingView(View.ROOTS); }}
-                   className="block w-full text-left px-4 py-3 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                >
-                  {t.roots}
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-serif font-bold text-slate-800 dark:text-white">{t.projects}</h3>
+                <button onClick={() => setView(View.PROJECTS)} className="text-brand-600 dark:text-brand-400 text-sm font-medium hover:underline flex items-center gap-1">
+                    View All <ArrowRight size={16} />
                 </button>
-                <button 
-                   onClick={() => { setMobileMenuOpen(false); user ? setPortalView(View.BRANCHES) : setLandingView(View.BRANCHES); }}
-                   className="block w-full text-left px-4 py-3 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                >
-                  {t.branches}
-                </button>
-                <button 
-                   onClick={() => { setMobileMenuOpen(false); user ? setPortalView(View.TOOLBOX) : setLandingView(View.TOOLBOX); }}
-                   className="block w-full text-left px-4 py-3 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                >
-                  {t.toolbox}
-                </button>
-                <div className="border-t border-slate-100 dark:border-slate-800 pt-2 mt-2">
-                   <button 
-                     onClick={() => { toggleLang(); setMobileMenuOpen(false); }}
-                     className="block w-full text-left px-4 py-3 rounded-xl font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                   >
-                     Language: <span className="font-bold">{lang === 'en' ? 'English' : 'Español'}</span>
-                   </button>
-                </div>
               </div>
-           </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {projects.slice(0, 4).map(project => (
+                  <ProjectCard 
+                    key={project.id} 
+                    project={project} 
+                    onSelect={(id) => { setSelectedProjectId(id); setView(View.PROJECT_DETAIL); }}
+                    onToggleTask={handleToggleTask}
+                    onDelete={handleDeleteProject}
+                    onUpdatePriority={handleUpdatePriority}
+                    onEditTask={openEditTaskModal}
+                  />
+                ))}
+                {projects.length === 0 && (
+                  <div className="col-span-full py-12 text-center bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-sand-300 dark:border-slate-700">
+                     <p className="text-slate-500 mb-4">You haven't started any projects yet.</p>
+                     <button onClick={() => setNewProjectModalOpen(true)} className="text-brand-600 font-bold hover:underline">Start your first project</button>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Quick Tasks View */}
+             <div>
+                 <h3 className="text-xl font-serif font-bold text-slate-800 dark:text-white mb-4">Due Soon</h3>
+                 <div className="bg-white dark:bg-slate-800 rounded-2xl border border-sand-200 dark:border-slate-700 overflow-hidden">
+                     {projects.flatMap(p => p.tasks.map(t => ({...t, projectName: p.title, projectId: p.id})))
+                        .filter(t => !t.isCompleted && t.dueDate)
+                        .sort((a, b) => (a.dueDate || 0) - (b.dueDate || 0))
+                        .slice(0, 3)
+                        .map(task => (
+                            <div key={task.id} className="p-4 border-b border-sand-100 dark:border-slate-700 last:border-0 hover:bg-sand-50 dark:hover:bg-slate-700 transition-colors flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <button onClick={() => handleToggleTask(task.projectId, task.id)} aria-label={task.isCompleted ? "Mark incomplete" : "Mark complete"} className="text-slate-300 hover:text-success">
+                                        <Circle size={20} />
+                                    </button>
+                                    <div>
+                                        <button onClick={() => openEditTaskModal(task.projectId, task)} className="font-medium text-slate-800 dark:text-white text-sm cursor-pointer hover:text-brand-600 text-left">{task.title}</button>
+                                        <p className="text-xs text-slate-500">{task.projectName} • {new Date(task.dueDate!).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                                <div className={`w-2 h-2 rounded-full ${task.priority === 'High' ? 'bg-clay-500' : 'bg-brand-400'}`} />
+                            </div>
+                        ))}
+                      {projects.flatMap(p => p.tasks).filter(t => !t.isCompleted && t.dueDate).length === 0 && (
+                          <div className="p-6 text-center text-slate-400 text-sm">No upcoming deadlines.</div>
+                      )}
+                 </div>
+             </div>
+          </div>
         )}
-      </header>
 
-      {/* --- Main Content --- */}
-      <main className="flex-1 flex flex-col">
-         {user ? (
-            <Portal 
-              user={user} 
-              view={portalView} 
-              setView={setPortalView} 
-              projects={projects}
-              activeProjectId={activeProjectId}
-              setActiveProjectId={setActiveProjectId}
-              onAddProject={() => setIsNewProjectOpen(true)}
-              onToggleTask={handleToggleTask}
-              onDeleteProject={handleDeleteProject}
-              onUpdatePriority={handleUpdatePriority}
-              onEditTask={handleOpenEditTask}
-              onNewTask={handleOpenNewTask}
-              onAddTask={handleAddTaskToProject}
-              onUpdateProject={handleUpdateProject}
-              searchResults={searchResults}
-              onSearch={handleSearch}
-              loadingSearch={loading && !searchResults} 
-              onSaveSearchResult={handleSaveSearchResult}
-              t={t}
-              lang={lang}
-              onLogout={handleLogout}
+        {currentView === View.PROJECTS && (
+          <div className="space-y-8">
+            <PortalHeader title={t.projects} showAdd={true} />
+            
+            {/* Filter/Sort Bar could go here */}
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {projects.map(project => (
+                <ProjectCard 
+                  key={project.id} 
+                  project={project} 
+                  onSelect={(id) => { setSelectedProjectId(id); setView(View.PROJECT_DETAIL); }}
+                  onToggleTask={handleToggleTask}
+                  onDelete={handleDeleteProject}
+                  onUpdatePriority={handleUpdatePriority}
+                  onEditTask={openEditTaskModal}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {currentView === View.PROJECT_DETAIL && selectedProjectId && (
+            <ProjectDetailPage 
+                project={projects.find(p => p.id === selectedProjectId)!}
+                projects={projects}
+                onSelectProject={(id) => setSelectedProjectId(id)}
+                onToggleTask={handleToggleTask}
+                onUpdatePriority={handleUpdatePriority}
+                onEditTask={openEditTaskModal}
+                onAddTask={(pid) => openNewTaskModal(pid)}
+                onUpdateProject={handleUpdateProject}
+                onNavigateToToolbox={() => setView(View.TOOLBOX)}
+                lang={lang}
             />
-         ) : (
-           <div className="flex-1 overflow-y-auto">
-             {landingView === View.ROOTS ? (
-               <RootsPage onBack={() => setLandingView(null)} lang={lang} />
-             ) : landingView === View.BRANCHES ? (
-               <BranchesPage onBack={() => setLandingView(null)} lang={lang} />
-             ) : landingView === View.TOOLBOX ? (
-               <ToolboxPage onBack={() => setLandingView(null)} lang={lang} />
-             ) : landingView === View.SEARCH_RESULTS ? (
-                <div className="max-w-7xl mx-auto px-4 py-12">
-                   <button onClick={() => setLandingView(null)} className="flex items-center text-slate-500 hover:text-brand-600 mb-6">
-                     <ArrowLeft size={20} className="mr-2" /> Back to Home
-                   </button>
-                   <SearchResultsPage 
-                     results={searchResults} 
-                     loading={loading && !searchResults} 
-                     onSave={handleSaveSearchResult} 
-                     t={t}
-                     lang={lang}
-                   />
+        )}
+        
+        {currentView === View.TASKS && (
+            <div className="space-y-6">
+                <PortalHeader title={t.tasks} showAdd={true} />
+                
+                {/* Advanced Sort/Filter Toolbar */}
+                <div className="flex flex-wrap gap-4 bg-white dark:bg-slate-800 p-4 rounded-xl border border-sand-200 dark:border-slate-700 mb-4">
+                    <div className="flex items-center gap-2">
+                        <Filter size={16} className="text-slate-400" />
+                        <label htmlFor="group-by" className="text-sm font-bold text-slate-600 dark:text-slate-300">Group By:</label>
+                        <select 
+                            id="group-by"
+                            value={taskGroupBy}
+                            onChange={(e) => setTaskGroupBy(e.target.value as any)}
+                            className="bg-transparent border-none text-sm font-medium focus:ring-0 cursor-pointer text-slate-800 dark:text-white"
+                        >
+                            <option value="None">None</option>
+                            <option value="Project">Project</option>
+                            <option value="Priority">Priority</option>
+                        </select>
+                    </div>
+                     <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-2"></div>
+                     <div className="flex items-center gap-2">
+                        <ArrowUpDown size={16} className="text-slate-400" />
+                        <label htmlFor="sort-by" className="text-sm font-bold text-slate-600 dark:text-slate-300">Sort By:</label>
+                        <select 
+                            id="sort-by"
+                            value={taskSortBy}
+                            onChange={(e) => setTaskSortBy(e.target.value as any)}
+                            className="bg-transparent border-none text-sm font-medium focus:ring-0 cursor-pointer text-slate-800 dark:text-white"
+                        >
+                            <option value="Date">Due Date</option>
+                            <option value="Priority">Priority</option>
+                            <option value="Title">Title</option>
+                        </select>
+                    </div>
                 </div>
-             ) : (
-               <LandingPageContent 
-                 onSearch={handleSearch} 
-                 t={t} 
-                 setLandingView={setLandingView}
-                 lang={lang}
-               />
-             )}
-             
-             {/* Footer */}
-             <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-12">
-                <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-8">
-                   <div>
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="w-6 h-6 bg-brand-600 rounded-md flex items-center justify-center text-white text-xs font-bold">R</div>
-                        <span className="font-bold text-lg text-slate-900 dark:text-white">Reframe</span>
-                      </div>
-                      <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                        Helping you build a better mind, one project at a time.
-                      </p>
-                   </div>
-                   
-                   <div>
-                     <h4 className="font-bold text-slate-900 dark:text-white mb-4">{t.startHere}</h4>
-                     <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                       <li><button onClick={() => user ? setPortalView(View.ROOTS) : setLandingView(View.ROOTS)} className="hover:text-brand-500">{t.roots}</button></li>
-                       <li><button onClick={() => user ? setPortalView(View.BRANCHES) : setLandingView(View.BRANCHES)} className="hover:text-brand-500">{t.branches}</button></li>
-                       <li><button onClick={() => user ? setPortalView(View.TOOLBOX) : setLandingView(View.TOOLBOX)} className="hover:text-brand-500">{t.toolbox}</button></li>
-                     </ul>
-                   </div>
 
-                   <div>
-                     <h4 className="font-bold text-slate-900 dark:text-white mb-4">{t.about}</h4>
-                     <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                       <li><a href="#" className="hover:text-brand-500">Manifesto</a></li>
-                       <li><a href="#" className="hover:text-brand-500">{t.submitTopic}</a></li>
-                       <li><a href="#" className="hover:text-brand-500">Contact</a></li>
-                     </ul>
-                   </div>
+                <div className="space-y-4">
+                    {/* Render logic based on grouping */}
+                    {taskGroupBy === 'Project' ? (
+                        projects.map(project => (
+                             <div key={project.id} className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-sand-200 dark:border-slate-700">
+                                 <div className="bg-sand-50 dark:bg-slate-900/50 px-6 py-3 border-b border-sand-100 dark:border-slate-700 flex justify-between items-center">
+                                     <h4 className="font-bold text-slate-700 dark:text-slate-300">{project.title}</h4>
+                                     <span className="text-xs text-slate-500 bg-white dark:bg-slate-800 px-2 py-1 rounded-full">{project.tasks.length} tasks</span>
+                                 </div>
+                                 <div className="divide-y divide-sand-100 dark:divide-slate-700">
+                                     {project.tasks.length === 0 ? <p className="p-4 text-sm text-slate-400 italic">No tasks.</p> : project.tasks.map(task => (
+                                         <TaskRow 
+                                           key={task.id} 
+                                           task={task} 
+                                           project={project} 
+                                           onToggle={() => handleToggleTask(project.id, task.id)} 
+                                           onEdit={() => openEditTaskModal(project.id, task)}
+                                           onPriority={(p) => handleUpdatePriority(project.id, task.id, p)}
+                                         />
+                                     ))}
+                                 </div>
+                             </div>
+                        ))
+                    ) : (
+                         <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-sand-200 dark:border-slate-700 divide-y divide-sand-100 dark:divide-slate-700">
+                             {projects.flatMap(p => p.tasks.map(t => ({...t, project: p})))
+                                .sort((a,b) => taskSortBy === 'Priority' ? (a.priority === 'High' ? -1 : 1) : 0) // Simplified sort
+                                .map(item => (
+                                    <TaskRow 
+                                        key={item.id}
+                                        task={item}
+                                        project={item.project}
+                                        onToggle={() => handleToggleTask(item.project.id, item.id)}
+                                        onEdit={() => openEditTaskModal(item.project.id, item)}
+                                        onPriority={(p) => handleUpdatePriority(item.project.id, item.id, p)}
+                                    />
+                                ))
+                             }
+                         </div>
+                    )}
+                </div>
+            </div>
+        )}
 
-                   <div>
-                     <h4 className="font-bold text-slate-900 dark:text-white mb-4">Legal</h4>
-                     <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                       <li><a href="#" className="hover:text-brand-500">{t.terms}</a></li>
-                       <li><a href="#" className="hover:text-brand-500">{t.privacy}</a></li>
-                     </ul>
-                   </div>
-                </div>
-                <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 text-center text-xs text-slate-400">
-                   &copy; {new Date().getFullYear()} Reframe. All rights reserved.
-                </div>
-             </footer>
-           </div>
-         )}
+        {currentView === View.WISDOM && <WisdomGenerator />}
+        {currentView === View.ROOTS && <RootsPage />}
+        {currentView === View.BRANCHES && <BranchesPage />}
+        {currentView === View.TOOLBOX && <ToolboxPage />}
+        
+        {currentView === View.ABOUT && <AboutPage />}
+        {currentView === View.TERMS && <TermsPage />}
+        {currentView === View.PRIVACY && <PrivacyPage />}
+
+        {currentView === View.SEARCH_RESULTS && (
+             <SearchResultsPage 
+                query={searchQuery} 
+                onSaveTask={(taskStr, type) => {
+                    // Logic to create a project from search result
+                    // For now, let's open the new project modal pre-filled
+                    setNewProjectModalOpen(true);
+                }}
+             />
+        )}
+
       </main>
 
-      {/* --- Global Modals --- */}
-      <LoginModal 
-        isOpen={isLoginOpen} 
-        onClose={() => setIsLoginOpen(false)} 
-        onLoginSuccess={handleLoginSuccess}
+      {/* Modals */}
+      <NewProjectModal 
+        isOpen={newProjectModalOpen} 
+        onClose={() => setNewProjectModalOpen(false)}
+        onCreate={handleCreateProject}
       />
       
-      <NewProjectModal 
-        isOpen={isNewProjectOpen} 
-        onClose={() => setIsNewProjectOpen(false)} 
-        onAdd={handleAddProject} 
-      />
-
       <TaskDetailModal 
-        isOpen={isTaskModalOpen}
-        onClose={() => { setIsTaskModalOpen(false); setEditingTask(null); }}
-        task={editingTask}
-        projects={projects}
-        onSave={handleSaveTask}
-        onDelete={handleDeleteTask}
-        lang={lang}
+         isOpen={taskModalOpen}
+         onClose={() => setTaskModalOpen(false)}
+         task={editingTask}
+         projects={projects}
+         onSave={handleSaveTask}
+         onDelete={handleDeleteTask}
+         lang={lang}
       />
-
     </div>
   );
 };
 
-export default App;
+const TaskRow = ({ task, project, onToggle, onEdit, onPriority }: any) => (
+    <div className="p-4 hover:bg-sand-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+        <button onClick={onToggle} aria-label={task.isCompleted ? "Mark incomplete" : "Mark complete"} className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${task.isCompleted ? 'bg-success border-success' : 'border-slate-300 dark:border-slate-600 hover:border-brand-500'}`}>
+            {task.isCompleted && <Check size={12} className="text-white" />}
+        </button>
+        <div className="flex-1 cursor-pointer" onClick={onEdit}>
+            <p className={`font-medium text-sm transition-colors ${task.isCompleted ? 'text-slate-400 line-through' : 'text-slate-800 dark:text-white hover:text-brand-600'}`}>{task.title}</p>
+            {project && <p className="text-xs text-slate-400">{project.title}</p>}
+        </div>
+        <div className="flex items-center gap-3">
+             {task.dueDate && (
+                 <span className={`text-xs px-2 py-0.5 rounded-md ${new Date(task.dueDate) < new Date() && !task.isCompleted ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-500'} dark:bg-slate-900`}>
+                     {new Date(task.dueDate).toLocaleDateString()}
+                 </span>
+             )}
+             <button 
+                onClick={() => onPriority(task.priority === 'High' ? 'Low' : task.priority === 'Low' ? 'Medium' : 'High')}
+                className={`w-2.5 h-2.5 rounded-full cursor-pointer hover:scale-125 transition-transform 
+                    ${task.priority === 'High' ? 'bg-clay-500' : task.priority === 'Medium' ? 'bg-warning' : 'bg-brand-400'}`} 
+                aria-label={`Change priority from ${task.priority}`}
+             />
+             <button onClick={onEdit} aria-label="Edit task" className="text-slate-300 hover:text-brand-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                 <Edit2 size={16} />
+             </button>
+        </div>
+    </div>
+)
+
+// --- Other Components ---
+
+const NavButton = ({ active, onClick, icon, label }: any) => (
+  <button 
+    onClick={onClick}
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 mb-1
+      ${active 
+        ? 'bg-brand-50 dark:bg-brand-900/10 text-brand-700 dark:text-brand-400 font-semibold shadow-sm' 
+        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+  >
+    {icon}
+    <span className="text-sm">{label}</span>
+  </button>
+);
+
+const SearchResultsPage = ({ query, onSaveTask }: { query: string, onSaveTask: (t: string, type: ReframeType) => void }) => {
+    const [result, setResult] = useState<SearchResult | null>(null);
+    const [loading, setLoading] = useState(true);
+    
+    // Follow Up State
+    const [followUpQuery, setFollowUpQuery] = useState('');
+    const [followUpResults, setFollowUpResults] = useState<{question: string, result: FollowUpResult}[]>([]);
+    const [loadingFollowUp, setLoadingFollowUp] = useState(false);
+
+    useEffect(() => {
+        const fetch = async () => {
+            setLoading(true);
+            try {
+                const res = await analyzeSituation(query);
+                setResult(res);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetch();
+    }, [query]);
+
+    const handleFollowUp = async () => {
+        if (!followUpQuery.trim()) return;
+        setLoadingFollowUp(true);
+        try {
+            // Include context of previous variations if possible, for now just pass query
+            const res = await getFollowUpAdvice(query, followUpQuery);
+            setFollowUpResults([...followUpResults, { question: followUpQuery, result: res }]);
+            setFollowUpQuery('');
+        } catch(e) { console.error(e) } 
+        finally { setLoadingFollowUp(false); }
+    };
+
+    if (loading) return (
+        <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="animate-spin text-brand-500 mb-4" size={48} />
+            <h3 className="text-xl font-serif text-slate-700 dark:text-slate-300">Consulting Wisdom...</h3>
+        </div>
+    );
+
+    if (!result) return <div>Error loading results.</div>;
+
+    return (
+        <div className="space-y-8 pb-20">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+                 <h2 className="text-3xl font-serif font-bold text-slate-800 dark:text-white mb-2">Paths Forward</h2>
+                 <p className="text-slate-500 dark:text-slate-400">For your situation: "{query}"</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {result.variations.map((v, i) => (
+                    <VariationCard key={i} variation={v} onSave={() => onSaveTask(v.title, v.type)} />
+                ))}
+            </div>
+            
+            {/* Conversation / Follow Up Section */}
+            <div className="mt-12 border-t border-sand-200 dark:border-slate-700 pt-8">
+                <h3 className="text-2xl font-serif font-bold text-slate-800 dark:text-white mb-6">Dive Deeper</h3>
+                
+                <div className="space-y-8 mb-8">
+                    {followUpResults.map((item, idx) => (
+                        <div key={idx} className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-sand-200 dark:border-slate-700 animate-fade-in-up">
+                            <div className="flex items-start gap-4 mb-4">
+                                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                                    <UserIcon size={16} />
+                                </div>
+                                <p className="font-medium text-slate-800 dark:text-white pt-1">{item.question}</p>
+                            </div>
+                            <div className="ml-12 bg-sand-50 dark:bg-slate-900/50 p-5 rounded-xl text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+                                {item.result.answer}
+                            </div>
+                            
+                            {/* Follow up Variations if any */}
+                            {item.result.variations && (
+                                <div className="ml-12 grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                    {item.result.variations.map((v, vIdx) => (
+                                         <VariationCard key={vIdx} variation={v} small />
+                                    ))}
+                                </div>
+                            )}
+
+                             {!item.result.variations && item.result.suggestedTasks && (
+                                <div className="ml-12">
+                                     <h5 className="text-xs font-bold uppercase text-slate-500 mb-2">Suggested Actions</h5>
+                                     <div className="space-y-2">
+                                         {item.result.suggestedTasks.map((t, ti) => (
+                                             <div key={ti} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 p-2 rounded border border-sand-100 dark:border-slate-700">
+                                                 <Plus size={14} className="text-brand-500" /> {t}
+                                             </div>
+                                         ))}
+                                     </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                <div className="relative max-w-2xl mx-auto">
+                    <label htmlFor="follow-up-input" className="sr-only">Follow-up question</label>
+                    <input 
+                        id="follow-up-input"
+                        value={followUpQuery}
+                        onChange={(e) => setFollowUpQuery(e.target.value)}
+                        placeholder="Ask a follow-up question regarding this situation..."
+                        className="w-full bg-white dark:bg-slate-800 border border-sand-200 dark:border-slate-700 rounded-2xl py-4 pl-6 pr-14 shadow-sm focus:ring-2 focus:ring-brand-500 outline-none placeholder:text-slate-500"
+                        onKeyDown={(e) => e.key === 'Enter' && handleFollowUp()}
+                    />
+                    <button 
+                        onClick={handleFollowUp}
+                        disabled={loadingFollowUp || !followUpQuery.trim()}
+                        className="absolute right-2 top-2 p-2 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-colors disabled:opacity-50"
+                        aria-label="Send follow-up question"
+                    >
+                        {loadingFollowUp ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+interface VariationCardProps {
+    variation: ReframeVariation;
+    onSave?: () => void;
+    small?: boolean;
+}
+
+const VariationCard: React.FC<VariationCardProps> = ({ variation, onSave, small }) => {
+    const Icon = variation.type === 'ROOTS' ? Sprout : variation.type === 'BRANCHES' ? GitFork : Wrench;
+    const color = variation.type === 'ROOTS' ? 'text-green-600 bg-green-50' : variation.type === 'BRANCHES' ? 'text-blue-600 bg-blue-50' : 'text-orange-600 bg-orange-50';
+    
+    return (
+        <div className={`bg-white dark:bg-slate-800 rounded-2xl border border-sand-200 dark:border-slate-700 overflow-hidden flex flex-col ${small ? 'p-4' : 'p-6 hover:shadow-lg transition-shadow'}`}>
+            <div className="flex items-center gap-3 mb-4">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${color} dark:bg-opacity-20`}>
+                    <Icon size={20} />
+                </div>
+                <div>
+                    <h4 className="font-bold text-slate-800 dark:text-white text-sm uppercase tracking-wide">{variation.type}</h4>
+                    <h3 className={`font-serif font-bold text-slate-900 dark:text-sand-100 ${small ? 'text-lg' : 'text-xl'}`}>{variation.title}</h3>
+                </div>
+            </div>
+            
+            <p className={`text-slate-600 dark:text-slate-300 mb-6 flex-1 ${small ? 'text-xs' : 'text-sm'}`}>{variation.context}</p>
+            
+            {!small && (
+                <div className="bg-sand-50 dark:bg-slate-900/50 p-4 rounded-xl mb-6 relative">
+                    <Quote className="absolute top-2 right-2 text-slate-200 dark:text-slate-700 w-6 h-6" />
+                    <p className="italic text-slate-700 dark:text-slate-300 text-sm mb-2">"{variation.quote}"</p>
+                    <p className="text-xs font-bold text-slate-500">— {variation.author}</p>
+                </div>
+            )}
+
+            <div className="space-y-3 mb-6">
+                {variation.suggestedTasks.map((task, i) => (
+                    <div key={i} className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-400">
+                        <CheckCircle2 size={16} className="text-brand-500 mt-0.5 flex-shrink-0" />
+                        <span>{task}</span>
+                    </div>
+                ))}
+            </div>
+
+            {onSave && (
+                <button 
+                    onClick={onSave}
+                    className="w-full py-2.5 bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-300 font-bold rounded-xl hover:bg-brand-100 dark:hover:bg-brand-900/40 transition-colors text-sm"
+                >
+                    Create Project
+                </button>
+            )}
+        </div>
+    );
+};
+
+// --- Landing Page Content ---
+
+const LandingPageContent: React.FC<{
+  onStart: () => void;
+  lang: Language;
+  landingView: View;
+  setLandingView: (v: View) => void;
+  onSearch: (q: string) => void;
+}> = ({ onStart, lang, landingView, setLandingView, onSearch }) => {
+  const t = translations[lang];
+  const [searchInput, setSearchInput] = useState('');
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      if(searchInput.trim()) onSearch(searchInput);
+  };
+
+  if (landingView === View.ROOTS) return <RootsPage onBack={() => setLandingView(View.DASHBOARD)} />;
+  if (landingView === View.BRANCHES) return <BranchesPage onBack={() => setLandingView(View.DASHBOARD)} />;
+  if (landingView === View.TOOLBOX) return <ToolboxPage onBack={() => setLandingView(View.DASHBOARD)} />;
+  
+  if (landingView === View.ABOUT) return <AboutPage />;
+  if (landingView === View.TERMS) return <TermsPage />;
+  if (landingView === View.PRIVACY) return <PrivacyPage />;
+
+  return (
+    <div className="animate-fade-in">
+      {/* Hero Section */}
+      <section className="relative pt-20 pb-32 overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-brand-100/50 dark:bg-brand-900/20 rounded-full blur-3xl -z-10"></div>
+        
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-slate-800 border border-brand-100 dark:border-slate-700 shadow-sm mb-8 animate-fade-in-up">
+            <Sparkles size={16} className="text-brand-500" />
+            <span className="text-xs font-bold tracking-widest text-slate-600 dark:text-slate-300 uppercase">{t.subsubtitle}</span>
+          </div>
+          
+          <h2 className="text-5xl md:text-7xl font-serif font-bold text-slate-900 dark:text-sand-50 mb-8 leading-tight animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-800 to-clay-700 dark:from-brand-200 dark:to-clay-200">
+               {t.subtitle}
+            </span>
+          </h2>
+          
+          <div className="max-w-xl mx-auto mb-12 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+             <form onSubmit={handleSearchSubmit} className="relative group">
+                 <div className="absolute inset-0 bg-brand-200 dark:bg-brand-900/50 rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                 <label htmlFor="hero-search" className="sr-only">{t.searchPlaceholder}</label>
+                 <input 
+                   id="hero-search"
+                   value={searchInput}
+                   onChange={(e) => setSearchInput(e.target.value)}
+                   className="w-full py-5 pl-6 pr-16 rounded-2xl bg-white dark:bg-slate-800 border border-sand-200 dark:border-slate-700 shadow-xl text-lg text-slate-800 dark:text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 relative z-10"
+                   placeholder={t.searchPlaceholder}
+                 />
+                 <button type="submit" className="absolute right-3 top-3 bottom-3 aspect-square bg-brand-600 hover:bg-brand-700 text-white rounded-xl z-20 flex items-center justify-center transition-all hover:scale-105" aria-label="Search">
+                     <ArrowRight size={24} />
+                 </button>
+             </form>
+          </div>
+        </div>
+      </section>
+
+      {/* 3 Pillars Section */}
+      <section className="py-20 bg-white dark:bg-slate-900/50">
+         <div className="max-w-6xl mx-auto px-6">
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                 <button onClick={() => setLandingView(View.ROOTS)} className="group cursor-pointer p-8 rounded-3xl bg-sand-50 dark:bg-slate-800 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors border border-transparent hover:border-brand-100 dark:hover:border-slate-700 text-left w-full focus:outline-none focus:ring-2 focus:ring-brand-500">
+                     <div className="w-14 h-14 rounded-2xl bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                         <Sprout size={32} />
+                     </div>
+                     <h3 className="text-2xl font-serif font-bold text-slate-800 dark:text-white mb-3">{t.roots}</h3>
+                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">{t.rootsDesc}</p>
+                     <span className="text-brand-600 font-bold text-sm flex items-center gap-2 group-hover:translate-x-2 transition-transform">Explore Roots <ArrowRight size={16} /></span>
+                 </button>
+                 
+                 <button onClick={() => setLandingView(View.BRANCHES)} className="group cursor-pointer p-8 rounded-3xl bg-sand-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border border-transparent hover:border-blue-100 dark:hover:border-slate-700 text-left w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+                     <div className="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                         <GitFork size={32} />
+                     </div>
+                     <h3 className="text-2xl font-serif font-bold text-slate-800 dark:text-white mb-3">{t.branches}</h3>
+                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">{t.branchesDesc}</p>
+                     <span className="text-blue-600 font-bold text-sm flex items-center gap-2 group-hover:translate-x-2 transition-transform">Explore Branches <ArrowRight size={16} /></span>
+                 </button>
+
+                 <button onClick={() => setLandingView(View.TOOLBOX)} className="group cursor-pointer p-8 rounded-3xl bg-sand-50 dark:bg-slate-800 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors border border-transparent hover:border-orange-100 dark:hover:border-slate-700 text-left w-full focus:outline-none focus:ring-2 focus:ring-orange-500">
+                     <div className="w-14 h-14 rounded-2xl bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                         <Wrench size={32} />
+                     </div>
+                     <h3 className="text-2xl font-serif font-bold text-slate-800 dark:text-white mb-3">{t.toolbox}</h3>
+                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">{t.toolboxDesc}</p>
+                     <span className="text-orange-600 font-bold text-sm flex items-center gap-2 group-hover:translate-x-2 transition-transform">Open Toolbox <ArrowRight size={16} /></span>
+                 </button>
+             </div>
+         </div>
+      </section>
+    </div>
+  );
+};
+
+// --- Product Pages ---
+
+const RootsPage = ({ onBack }: { onBack?: () => void }) => (
+    <div className="animate-fade-in pb-20">
+        {onBack && <button onClick={onBack} className="mb-8 flex items-center gap-2 text-slate-500 hover:text-brand-600"><ArrowLeft size={20} /> Back</button>}
+        <div className="bg-green-50 dark:bg-green-900/10 rounded-3xl p-12 mb-12 border border-green-100 dark:border-green-900/30">
+            <div className="flex items-start gap-6">
+                <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm text-green-600">
+                    <Sprout size={48} />
+                </div>
+                <div>
+                    <h1 className="text-4xl md:text-5xl font-serif font-bold text-green-900 dark:text-green-100 mb-4">The Roots</h1>
+                    <p className="text-xl text-green-800 dark:text-green-200 leading-relaxed max-w-2xl">
+                        Deep wisdom, philosophy, and spiritual grounding. Before we act, we must understand.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+             <div className="p-8 bg-white dark:bg-slate-800 rounded-3xl border border-sand-100 dark:border-slate-700">
+                 <h3 className="text-2xl font-serif font-bold mb-4">Core Principles</h3>
+                 <ul className="space-y-4">
+                     <li className="flex gap-3"><CheckCircle2 className="text-green-600" /> Stoic Resilience</li>
+                     <li className="flex gap-3"><CheckCircle2 className="text-green-600" /> Eastern Mindfulness</li>
+                     <li className="flex gap-3"><CheckCircle2 className="text-green-600" /> Existential Purpose</li>
+                 </ul>
+             </div>
+             <div className="p-8 bg-white dark:bg-slate-800 rounded-3xl border border-sand-100 dark:border-slate-700">
+                 <h3 className="text-2xl font-serif font-bold mb-4">Why it Matters</h3>
+                 <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                     Without strong roots, a tree falls in the storm. Your mindset determines your reality.
+                 </p>
+             </div>
+        </div>
+    </div>
+);
+
+const BranchesPage = ({ onBack }: { onBack?: () => void }) => (
+    <div className="animate-fade-in pb-20">
+        {onBack && <button onClick={onBack} className="mb-8 flex items-center gap-2 text-slate-500 hover:text-brand-600"><ArrowLeft size={20} /> Back</button>}
+        <div className="bg-blue-50 dark:bg-blue-900/10 rounded-3xl p-12 mb-12 border border-blue-100 dark:border-blue-900/30">
+            <div className="flex items-start gap-6">
+                <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm text-blue-600">
+                    <GitFork size={48} />
+                </div>
+                <div>
+                    <h1 className="text-4xl md:text-5xl font-serif font-bold text-blue-900 dark:text-blue-100 mb-4">The Branches</h1>
+                    <p className="text-xl text-blue-800 dark:text-blue-200 leading-relaxed max-w-2xl">
+                        Practical application in the real world. Career, relationships, finance, and health.
+                    </p>
+                </div>
+            </div>
+        </div>
+         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+             {['Career', 'Relationships', 'Health'].map(cat => (
+                 <div key={cat} className="p-6 bg-white dark:bg-slate-800 rounded-2xl border border-sand-100 dark:border-slate-700 text-center">
+                     <h3 className="text-xl font-bold mb-2">{cat}</h3>
+                     <p className="text-sm text-slate-500">Apply wisdom to grow in your {cat.toLowerCase()}.</p>
+                 </div>
+             ))}
+        </div>
+    </div>
+);
+
+const ToolboxPage = ({ onBack }: { onBack?: () => void }) => (
+    <div className="animate-fade-in pb-20">
+        {onBack && <button onClick={onBack} className="mb-8 flex items-center gap-2 text-slate-500 hover:text-brand-600"><ArrowLeft size={20} /> Back</button>}
+        <div className="bg-orange-50 dark:bg-orange-900/10 rounded-3xl p-12 mb-12 border border-orange-100 dark:border-orange-900/30">
+            <div className="flex items-start gap-6">
+                <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm text-orange-600">
+                    <Wrench size={48} />
+                </div>
+                <div>
+                    <h1 className="text-4xl md:text-5xl font-serif font-bold text-orange-900 dark:text-orange-100 mb-4">The Toolbox</h1>
+                    <p className="text-xl text-orange-800 dark:text-orange-200 leading-relaxed max-w-2xl">
+                        Immediate, actionable mental models and techniques to change your state instantly.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {['Box Breathing', 'The Pause Button', 'Reframing', 'Journaling', 'Visualization', 'Gratitude Audit'].map((tool, i) => (
+                <button key={i} className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-sand-200 dark:border-slate-700 hover:shadow-lg transition-all cursor-pointer group text-left w-full focus:outline-none focus:ring-2 focus:ring-orange-500">
+                    <div className="flex justify-between items-center mb-4">
+                        <h4 className="font-bold text-lg text-slate-800 dark:text-white">{tool}</h4>
+                        <ArrowRight className="text-slate-300 group-hover:text-orange-500 transition-colors" size={20} />
+                    </div>
+                    <div className="h-2 w-12 bg-orange-200 rounded-full"></div>
+                </button>
+            ))}
+        </div>
+    </div>
+);
+
+// --- New Project Modal ---
+
+const NewProjectModal = ({ isOpen, onClose, onCreate }: { isOpen: boolean, onClose: () => void, onCreate: (p: Project) => void }) => {
+  const [title, setTitle] = useState('');
+  const [desc, setDesc] = useState('');
+  const [category, setCategory] = useState<'Personal'|'Career'|'Health'|'Spiritual'>('Personal');
+  const [loadingTasks, setLoadingTasks] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoadingTasks(true);
+    
+    // AI Generate Tasks
+    const suggested = await suggestProjectTasks(title, desc);
+    const tasks: Task[] = suggested.map((t, i) => ({
+      id: `task-${Date.now()}-${i}`,
+      title: t,
+      isCompleted: false,
+      priority: 'Medium'
+    }));
+
+    const newProject: Project = {
+      id: Date.now().toString(),
+      title,
+      description: desc,
+      category,
+      progress: 0,
+      tasks,
+      notes: [],
+      createdAt: Date.now()
+    };
+
+    onCreate(newProject);
+    setLoadingTasks(false);
+    setTitle(''); setDesc('');
+  };
+
+  return (
+    <div className="fixed inset-0 bg-brand-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-md animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="new-project-title">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg p-8 shadow-2xl border border-sand-100 dark:border-slate-800">
+        <div className="flex justify-between items-center mb-6">
+          <h3 id="new-project-title" className="text-2xl font-serif font-bold text-slate-900 dark:text-white">Begin Journey</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Close modal"><X size={24} /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label htmlFor="project-name" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Project Name</label>
+            <input 
+              id="project-name"
+              required 
+              autoFocus
+              value={title} 
+              onChange={e => setTitle(e.target.value)} 
+              className="w-full border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-sand-50 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none" 
+              placeholder="e.g. Run a Marathon" 
+            />
+          </div>
+          <div>
+            <label htmlFor="project-desc" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Why this matters?</label>
+            <textarea 
+              id="project-desc"
+              required 
+              value={desc} 
+              onChange={e => setDesc(e.target.value)} 
+              className="w-full border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-sand-50 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none h-24 resize-none" 
+              placeholder="Describe your intent..." 
+            />
+          </div>
+          <div>
+            <span className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Domain</span>
+            <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Project Domain">
+              {(['Personal', 'Career', 'Health', 'Spiritual'] as const).map(cat => (
+                <button 
+                  type="button" 
+                  key={cat} 
+                  role="radio"
+                  aria-checked={category === cat}
+                  onClick={() => setCategory(cat)} 
+                  className={`py-3 rounded-xl border font-medium text-sm transition-all ${category === cat ? 'bg-brand-50 dark:bg-brand-900/30 border-brand-500 text-brand-700 dark:text-brand-300' : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'}`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button disabled={loadingTasks} type="submit" className="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-lg transition-all shadow-lg flex justify-center items-center gap-2">
+            {loadingTasks ? <Loader2 className="animate-spin" /> : 'Create Project'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// --- Unified Login Modal ---
+
+const LoginModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setError('');
+      setLoading(true);
+      try {
+          if (isSignUp) {
+             await signUpWithEmail(email, password, name);
+          } else {
+             await loginWithEmail(email, password);
+          }
+          onClose();
+      } catch (err: any) {
+          setError(err.message || 'Authentication failed');
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  const handleSocial = async () => {
+      try {
+          await signInWithSocial();
+          onClose();
+      } catch (err) { console.error(err); }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-brand-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-md animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="login-title">
+       <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md p-8 shadow-2xl border border-sand-100 dark:border-slate-800">
+           <div className="text-center mb-8">
+               <h2 id="login-title" className="text-3xl font-serif font-bold text-slate-900 dark:text-white mb-2">
+                   {isSignUp ? 'Join the Journey' : 'Welcome Back'}
+               </h2>
+               <p className="text-slate-500 text-sm">Your path to a better self starts here.</p>
+           </div>
+
+           {error && <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm mb-4 text-center">{error}</div>}
+
+           <form onSubmit={handleSubmit} className="space-y-4">
+               {isSignUp && (
+                   <div className="space-y-1">
+                       <label htmlFor="auth-name" className="text-xs font-bold text-slate-500 uppercase">Name</label>
+                       <input 
+                         id="auth-name"
+                         required 
+                         autoFocus
+                         value={name} 
+                         onChange={e => setName(e.target.value)} 
+                         className="w-full border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-sand-50 dark:bg-slate-800 dark:text-white outline-none focus:border-brand-500" 
+                       />
+                   </div>
+               )}
+               <div className="space-y-1">
+                   <label htmlFor="auth-email" className="text-xs font-bold text-slate-500 uppercase">Email</label>
+                   <input 
+                     id="auth-email"
+                     required 
+                     type="email" 
+                     value={email} 
+                     onChange={e => setEmail(e.target.value)} 
+                     className="w-full border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-sand-50 dark:bg-slate-800 dark:text-white outline-none focus:border-brand-500" 
+                   />
+               </div>
+               <div className="space-y-1">
+                   <label htmlFor="auth-pass" className="text-xs font-bold text-slate-500 uppercase">Password</label>
+                   <input 
+                     id="auth-pass"
+                     required 
+                     type="password" 
+                     value={password} 
+                     onChange={e => setPassword(e.target.value)} 
+                     className="w-full border border-slate-300 dark:border-slate-700 rounded-xl p-3 bg-sand-50 dark:bg-slate-800 dark:text-white outline-none focus:border-brand-500" 
+                   />
+               </div>
+               
+               <button disabled={loading} type="submit" className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold transition-all shadow-lg mt-2">
+                   {loading ? <Loader2 className="animate-spin mx-auto" /> : (isSignUp ? 'Create Account' : 'Sign In')}
+               </button>
+           </form>
+
+           <div className="relative my-6">
+               <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200 dark:border-slate-700"></div></div>
+               <div className="relative flex justify-center text-sm"><span className="px-2 bg-white dark:bg-slate-900 text-slate-400">Or continue with</span></div>
+           </div>
+
+           <button onClick={handleSocial} className="w-full py-3 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium text-slate-700 dark:text-slate-300">
+               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5" alt="Google" />
+               Google
+           </button>
+
+           <div className="mt-6 text-center text-sm">
+               <span className="text-slate-500">{isSignUp ? 'Already have an account?' : "Don't have an account?"}</span>
+               <button onClick={() => setIsSignUp(!isSignUp)} className="ml-2 font-bold text-brand-600 hover:underline">
+                   {isSignUp ? 'Sign In' : 'Sign Up'}
+               </button>
+           </div>
+           
+           <button onClick={onClose} className="absolute top-4 right-4 text-slate-300 hover:text-slate-500" aria-label="Close modal"><X size={20} /></button>
+       </div>
+    </div>
+  )
+}
+
+// --- Main App Component ---
+
+export default function App() {
+  const [user, setUser] = useState<User | null>(null);
+  const [view, setView] = useState<View>(View.DASHBOARD);
+  const [landingView, setLandingView] = useState<View>(View.DASHBOARD);
+  const [lang, setLang] = useState<Language>('en');
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Search Results view handler for public search
+  const handlePublicSearch = (q: string) => {
+      setSearchQuery(q);
+      setView(View.SEARCH_RESULTS); // If logged in, this view exists in portal. 
+      // If logged out, we need to handle "Public Search Results".
+      // For simplicity, we render SearchResultsPage in main content if user is logged out too.
+  };
+
+  useEffect(() => {
+    const unsub = subscribeToAuth(u => {
+        setUser(u);
+        if (u) {
+            setView(View.DASHBOARD); // Default to Dashboard on login
+        } else {
+            setView(View.DASHBOARD); // Default to landing
+        }
+    });
+    return () => unsub();
+  }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    setUser(null);
+    setView(View.DASHBOARD);
+    setLandingView(View.DASHBOARD);
+    window.scrollTo(0, 0);
+  };
+
+  // Helper for footer navigation
+  const handleFooterNavigate = (targetView: View) => {
+    if (user) {
+      setView(targetView);
+    } else {
+      setLandingView(targetView);
+    }
+    window.scrollTo(0, 0);
+  };
+
+  const t = translations[lang];
+
+  return (
+    <div className="min-h-screen flex flex-col font-sans selection:bg-brand-200 selection:text-brand-900">
+      
+      {/* Header */}
+      <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${user ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-sand-200 dark:border-slate-800' : 'bg-white/80 dark:bg-brand-950/80 backdrop-blur-md'}`}>
+        <div className="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between relative">
+          
+            <button 
+              onClick={() => { setView(View.DASHBOARD); setLandingView(View.DASHBOARD); }}
+              className="flex items-center gap-3 cursor-pointer group z-10 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded-lg"
+              aria-label="Go to home"
+            >
+              <div className="w-10 h-10 rounded-xl bg-brand-600 text-white dark:bg-brand-200 dark:text-brand-900 flex items-center justify-center shadow-lg shadow-brand-500/20 dark:shadow-none group-hover:scale-105 transition-all duration-500">
+                <Leaf size={24} />
+              </div>
+              <h1 className="text-2xl font-serif font-bold text-slate-900 dark:text-sand-100 tracking-tight">Reframe</h1>
+            </button>
+            
+            {/* Desktop Nav - Centered */}
+            {!user && (
+               <nav className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-8" aria-label="Main Navigation">
+                  <button onClick={() => setLandingView(View.ROOTS)} className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-200 transition-colors group">
+                      <div className="p-1.5 rounded-lg bg-transparent group-hover:bg-brand-50 dark:group-hover:bg-white/10 transition-colors">
+                        <Sprout size={18} />
+                      </div>
+                      <span>{t.roots}</span>
+                  </button>
+                  <button onClick={() => setLandingView(View.BRANCHES)} className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-200 transition-colors group">
+                      <div className="p-1.5 rounded-lg bg-transparent group-hover:bg-brand-50 dark:group-hover:bg-white/10 transition-colors">
+                        <GitFork size={18} />
+                      </div>
+                      <span>{t.branches}</span>
+                  </button>
+                  <button onClick={() => setLandingView(View.TOOLBOX)} className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-200 transition-colors group">
+                       <div className="p-1.5 rounded-lg bg-transparent group-hover:bg-brand-50 dark:group-hover:bg-white/10 transition-colors">
+                        <Wrench size={18} />
+                      </div>
+                      <span>{t.toolbox}</span>
+                  </button>
+               </nav>
+            )}
+
+          <div className="flex items-center gap-4 z-10">
+             {/* Hidden on Mobile: Language */}
+             <div className="hidden md:flex items-center border border-slate-200 dark:border-slate-700 rounded-full p-1 bg-slate-50 dark:bg-slate-900">
+                 <button onClick={() => setLang('en')} className={`px-3 py-1 text-xs font-bold rounded-full transition-all ${lang === 'en' ? 'bg-white dark:bg-slate-700 text-brand-600 shadow-sm' : 'text-slate-400'}`}>EN</button>
+                 <button onClick={() => setLang('es')} className={`px-3 py-1 text-xs font-bold rounded-full transition-all ${lang === 'es' ? 'bg-white dark:bg-slate-700 text-brand-600 shadow-sm' : 'text-slate-400'}`}>ES</button>
+             </div>
+
+             <ThemeToggle />
+
+             {user ? (
+                 <div className="relative group">
+                     <button className="w-10 h-10 rounded-full bg-brand-100 dark:bg-slate-800 flex items-center justify-center text-brand-700 dark:text-brand-400 font-bold border-2 border-transparent hover:border-brand-200 transition-all focus:outline-none focus:ring-2 focus:ring-brand-500" aria-haspopup="true">
+                         {user.displayName ? user.displayName[0] : <UserIcon size={20} />}
+                     </button>
+                     {/* Dropdown */}
+                     <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-sand-100 dark:border-slate-700 overflow-hidden hidden group-hover:block animate-fade-in-up origin-top-right">
+                         <div className="p-3 border-b border-sand-50 dark:border-slate-700">
+                             <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{user.displayName}</p>
+                             <p className="text-xs text-slate-500 truncate">{user.email}</p>
+                         </div>
+                         <button className="w-full text-left px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-sand-50 dark:hover:bg-slate-700 flex items-center gap-2"><Settings size={16}/> Settings</button>
+                         <button onClick={handleLogout} className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 flex items-center gap-2"><LogOut size={16}/> Sign Out</button>
+                     </div>
+                 </div>
+             ) : (
+                 <button 
+                   onClick={() => setLoginOpen(true)}
+                   className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm hover:scale-105 transition-transform focus:outline-none focus:ring-2 focus:ring-brand-500"
+                 >
+                     {t.signIn}
+                 </button>
+             )}
+             
+             {/* Mobile Menu Toggle */}
+             {!user && (
+                 <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden text-slate-600 dark:text-slate-300" aria-label="Toggle menu">
+                     {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                 </button>
+             )}
+          </div>
+        </div>
+        
+        {/* Mobile Menu */}
+        {mobileMenuOpen && !user && (
+            <div className="md:hidden absolute top-20 left-0 right-0 bg-white dark:bg-slate-900 border-b border-sand-200 dark:border-slate-800 animate-fade-in shadow-xl p-6 flex flex-col gap-4">
+                 <button onClick={() => {setLandingView(View.ROOTS); setMobileMenuOpen(false);}} className="flex items-center gap-3 text-lg font-serif font-bold text-slate-800 dark:text-white"><Sprout size={20} className="text-brand-500"/> {t.roots}</button>
+                 <button onClick={() => {setLandingView(View.BRANCHES); setMobileMenuOpen(false);}} className="flex items-center gap-3 text-lg font-serif font-bold text-slate-800 dark:text-white"><GitFork size={20} className="text-brand-500"/> {t.branches}</button>
+                 <button onClick={() => {setLandingView(View.TOOLBOX); setMobileMenuOpen(false);}} className="flex items-center gap-3 text-lg font-serif font-bold text-slate-800 dark:text-white"><Wrench size={20} className="text-brand-500"/> {t.toolbox}</button>
+                 <hr className="border-slate-100 dark:border-slate-800" />
+                 <div className="flex gap-4">
+                     <button onClick={() => setLang('en')} className={`flex-1 py-2 rounded-lg text-sm font-bold border ${lang === 'en' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 dark:border-slate-700'}`}>English</button>
+                     <button onClick={() => setLang('es')} className={`flex-1 py-2 rounded-lg text-sm font-bold border ${lang === 'es' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 dark:border-slate-700'}`}>Español</button>
+                 </div>
+            </div>
+        )}
+      </header>
+
+      {/* Main Render Switch */}
+      {user ? (
+        <Portal 
+            user={user} 
+            currentView={view} 
+            setView={setView} 
+            lang={lang} 
+            onLogout={handleLogout}
+        />
+      ) : (
+          <main className="flex-1 pt-20">
+              {/* If public search was triggered */}
+              {view === View.SEARCH_RESULTS ? (
+                   <div className="max-w-6xl mx-auto p-6 md:p-12">
+                       <button onClick={() => setView(View.DASHBOARD)} className="mb-8 flex items-center gap-2 text-slate-500 hover:text-brand-600"><ArrowLeft size={20} /> Back Home</button>
+                       <SearchResultsPage query={searchQuery} onSaveTask={() => setLoginOpen(true)} />
+                   </div>
+              ) : (
+                  <LandingPageContent 
+                    onStart={() => setLoginOpen(true)} 
+                    lang={lang} 
+                    landingView={landingView}
+                    setLandingView={setLandingView}
+                    onSearch={handlePublicSearch}
+                  />
+              )}
+          </main>
+      )}
+
+      {/* Footer */}
+      <footer className="bg-white dark:bg-slate-900 border-t border-sand-200 dark:border-slate-800 py-12">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+            <Leaf size={32} className="mx-auto text-brand-300 dark:text-slate-700 mb-6" />
+            <p className="font-serif italic text-lg text-slate-700 dark:text-slate-300 mb-8 max-w-2xl mx-auto">
+               {t.footerQuote}
+            </p>
+            <div className="flex justify-center gap-8 text-sm font-medium text-slate-600 dark:text-slate-400 mb-8">
+               <button onClick={() => handleFooterNavigate(View.ABOUT)} className="hover:text-brand-600 transition-colors focus:outline-none">{t.about}</button>
+               <button onClick={() => handleFooterNavigate(View.TERMS)} className="hover:text-brand-600 transition-colors focus:outline-none">{t.terms}</button>
+               <button onClick={() => handleFooterNavigate(View.PRIVACY)} className="hover:text-brand-600 transition-colors focus:outline-none">{t.privacy}</button>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-500">© {new Date().getFullYear()} Reframe. All rights reserved.</p>
+        </div>
+      </footer>
+
+      <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
+    </div>
+  );
+}
+
+// --- Theme Toggle ---
+const ThemeToggle = () => {
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    if (document.documentElement.classList.contains('dark')) {
+        setDark(true);
+    }
+  }, []);
+
+  const toggle = () => {
+    setDark(!dark);
+    document.documentElement.classList.toggle('dark');
+  };
+
+  return (
+    <button 
+      onClick={toggle}
+      className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+      aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+    >
+      {dark ? <Sun size={20} /> : <Moon size={20} />}
+    </button>
+  );
+};
